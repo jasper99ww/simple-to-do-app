@@ -5,7 +5,6 @@
   --accent-color: #00FFC4;
   --text-color: #F9F9F9;
 }
-
 *{
   margin: 0;
   padding: 0;
@@ -141,3 +140,6 @@ input[type="checkbox"]{
     font-size: 15vw;
   }
 }
+/* .delete-button svg{
+  pointer-events: none
+} */
