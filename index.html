@@ -8,13 +8,50 @@
   <script type="module" src="src/app.js"></script>
 </head>
 <body>
-  <h1>Todo App</h1>
-  <div class="wrapper">
-    <form>
-      <input id="todo-input" type="text" placeholder="write anything and hit enter to add" autocomplete="off">
-      <button id="add-button">ADD</button>
+
+  <div id="sidebar">
+    
+    <h2>My lists</h2>
+
+    <form id="search-bar-form">
+      <input type="text" id="search-list-input" placeholder="Search lists...">
+      <button type="submit" id="search-list-btn">
+        <img src="src/search.svg" alt="search icon" id="search-icon">
+      </button>
     </form>
-    <ul id="todo-list"></ul>
+
+    <form id="new-list-form">
+      <input type="text" id="new-list-input" placeholder="New list name"/>
+      <button id="create-list-btn">+</button>
+    </form>
+
+    <ul id="list-names"></ul>
   </div>
+  
+
+  <h1 id="title">Todo App</h1>
+  <div class="flex-container">
+    <p id="current-list-name">Current List Name</p>
+    <div class="content">
+      <form id="todo-input-form">
+        <input type="text" id="todo-input" placeholder="Add a new task and press enter" autocomplete="off">
+        <button id="add-btn">ADD</button>
+      </form>
+      
+      <ul id="todo-list"></ul>
+    </div>
+  </div>
+
+  <div class="flex-container-prompt">
+    <div class="empty-prompt">
+      <h2>Welcome to Todo App!</h2>
+      <h3>You don't have any lists yet. Create your first list now:</h3>
+      <form id="first-list-form">
+        <input type="text" id="first-list-input" placeholder="Enter a name for your first list" autocomplete="off">
+        <button id="create-first-list-btn">Create List</button>
+      </form>
+    </div>
+  </div>
+  
 </body>
 </html>

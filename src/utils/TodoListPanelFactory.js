@@ -1,22 +1,24 @@
 import { trashIcon, doneIcon } from './icons.js';
 
-export class TodoItemFactory {
-
-  createTodoItem(todo, index) {
+export class TodoListPanelFactory {
+  
+  createTodoListPanel(list, index) {
     const li = document.createElement('li');
-    li.id = index;
-    li.className = 'todo';
-    this.addCheckbox(li, todo, index);
-    this.addTextLabel(li, todo, index);
+    li.className = 'list-item';
+
+    console.log('list to  ' + list)
+
+    this.addCheckbox(li, list.completed, index);
+    this.addTextLabel(li, list.name, index);
     this.addDeleteButton(li, index);
+
     return li;
   }
 
-  addCheckbox(li, todo, index) {
+  addCheckbox(li, completed, index) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
-    checkbox.id = `todo-${index}`;
-    checkbox.checked = todo.completed;
+    checkbox.checked = completed;
     li.appendChild(checkbox);
 
     // Tworzenie niestandardowej etykiety dla checkboxa wraz z SVG
@@ -27,17 +29,18 @@ export class TodoItemFactory {
     li.appendChild(labelForCheckbox);
   }
 
-  addTextLabel(li, todo, index) {
+  addTextLabel(li, text, index) {
     const label = document.createElement('label');
-    label.className = 'todo-text';
-    label.htmlFor = `todo-${index}`;
-    label.textContent = todo.text;
+    label.className = 'todo-list-text';
+    label.htmlFor = `todo-list-${index}`;
+    console.log("A LABEL TO " + text)
+    label.textContent = text;
     li.appendChild(label);
   }
 
   addDeleteButton(li, index) {
     const button = document.createElement('button');
-    button.className = 'delete-btn';
+    button.className = 'todo-list-delete-btn';
     button.innerHTML = trashIcon;
     li.appendChild(button);
   }
