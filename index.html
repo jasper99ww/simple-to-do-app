@@ -6,9 +6,9 @@
   <title>Todo App</title>
   <link rel="stylesheet" href="src/style.css">
   <script type="module" src="src/app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
 <body>
-
   <div id="sidebar">
     
     <h2>My lists</h2>
@@ -20,15 +20,13 @@
       </button>
     </form>
 
-    <form id="new-list-form">
+    <form id="list-form">
       <input type="text" id="new-list-input" placeholder="New list name"/>
       <button id="create-list-btn">+</button>
     </form>
 
     <ul id="list-names"></ul>
   </div>
-  
-
   <h1 id="title">Todo App</h1>
   <div class="flex-container">
     <p id="current-list-name">Current List Name</p>
@@ -41,7 +39,6 @@
       <ul id="todo-list"></ul>
     </div>
   </div>
-
   <div class="flex-container-prompt">
     <div class="empty-prompt">
       <h2>Welcome to Todo App!</h2>
@@ -52,6 +49,5 @@
       </form>
     </div>
   </div>
-  
 </body>
 </html>

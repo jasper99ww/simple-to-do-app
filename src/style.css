@@ -1,11 +1,10 @@
 :root {
   --background: #FAFAFA;
-  --primary-color: #CFD8DC;
+  --primary-color: #ECEFF1;
   --secondary-color: #B0BEC5;
-  --accent-color: #78909C;
-  --text-color: #37474F;
+  --accent-color: #FF9800;
+  --text-color: #37474F; 
 }
-
 
 *{
   margin: 0;
@@ -39,6 +38,8 @@ body{
   padding: 20px;
   gap: 20px;
   background-color: var(--primary-color);
+  height: 100vh;
+  overflow-y: auto;
 }
 
 #search-bar-form {
@@ -77,7 +78,7 @@ body{
   background: var(--primary-color);
 } 
 
-#new-list-form {
+#list-form {
   display: flex;
 }
 
@@ -118,17 +119,15 @@ body{
 }
 
 #list-names {
-  list-style: none; /* Usuwa domyślne oznaczenia listy */
+  list-style: none;
   padding: 0;
-  border-radius: 15px; /* Zaokrąglone rogi dla nowoczesnego wyglądu */
-  max-height: 300px; /* Ogranicza wysokość i wprowadza przewijanie */
-  overflow-y: auto; /* Włącza przewijanie pionowe gdy lista jest za długa */
+  border-radius: 15px;
+  max-height: 300px;
 }
 
 #list-names li:not(:last-child) {
   margin-bottom: 10px;
 }
-
 
 #title {
   grid-area: header;
@@ -182,7 +181,6 @@ body{
   border-radius: 1000px;
   font-size: inherit;
   color: var(--text-color);
-  /* caret-color: var(--accent-color); */
 }
 
 #todo-input:focus, #first-list-input:focus{
@@ -210,48 +208,109 @@ body{
 
 .todo {
   background-color: var(--primary-color);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
   margin-bottom: 10px;
 }
 
 .list-item {
   background-color: var(--background);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
 }
 
-#list-names li:hover {
-  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Zwiększony cień po najechaniu */
+.drag-btn.dragging {
+  cursor: grabbing;
+}
+
+.sortable-chosen.sortable-ghost {
+	opacity: 0;
+}
+
+.sortable-ghost, .sortable-chosen {
+  cursor: grabbing;
+}
+
+.sortable-fallback {
+	opacity: 1 !important;
+}
+
+
+.list-item.active{
+  border: 2px solid var(--accent-color);
+}
+
+.list-item:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
 
 .todo, .list-item {
-  padding: 0 16px;
+  padding: 0 12px;
+  gap: 2px;
   border-radius: 15px;
   display: flex;
   align-items: center;
 }
 
+.icon-container {
+  display: flex;
+}
+
+.edit-list-btn, .delete-list-btn {
+  padding: 0px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.drag-btn {
+  padding: 0px;
+  background: none;
+  border: none;
+  cursor: grab;
+}
+
+.grabbing * {
+  cursor: grabbing !important;
+}
+
 .todo-text, .todo-list-text{
-  padding: 15px;
+  padding: 14px 7px;
   padding-right: 0;
   flex-grow: 1;
   transition: 500ms ease;
+  resize: none;
+  background: none;
+  border: none;
+  overflow: hidden;
+  overflow-wrap: break-word;
 }
-.delete-btn, .todo-list-delete-btn{
+
+.todo-text:focus, .todo-list-text:focus {
+  outline: none;
+  margin: 10px;
+  box-shadow: 0 0 8px var(--secondary-color);
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.edit-btn, .delete-btn {
   padding: 3px;
   background: none;
   border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  cursor: pointer;
   cursor: pointer;
 }
-.delete-btn svg, .todo-list-delete-btn svg {
-  fill: #455A64; /* Ciemny, intensywny granat */
+
+.edit-btn, .delete-btn svg, .edit-list-btn, .delete-list-btn svg, .drag-btn svg {
+  fill: #455A64;
+  transition: 250ms ease-in-out;
 }
 
-.delete-btn:hover svg, .todo-list-delete-btn:hover svg {
-  fill: #37474F; /* Bardziej subtelny, ciemniejszy granat na hover */
+.delete-btn:hover svg, .delete-list-btn:hover svg {
+  fill: #D32F2F;
 }
 
+.edit-btn:hover, .edit-list-btn:hover, .drag-btn:hover svg {
+  fill: var(--accent-color)
+}
 
 .custom-checkbox{
   border: 2px solid var(--accent-color);
