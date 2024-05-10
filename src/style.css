@@ -20,7 +20,7 @@ html{
 
 body{
   display: grid;
-  grid-template-columns: 300px 1fr;
+  grid-template-columns: 0.2fr 5fr;
   grid-template-rows: auto 1fr;
   grid-template-areas: 
     "sidebar header"
@@ -28,7 +28,13 @@ body{
   min-height: 100vh;
   background-color: var(--background);
   grid-gap: 10px;
+  transition: grid-template-columns 0.5s ease;
 }
+
+body.sidebar-expanded{
+  grid-template-columns: 250px 5fr;
+}
+
 
 #sidebar {
   grid-area: sidebar;
@@ -40,7 +46,36 @@ body{
   background-color: var(--primary-color);
   height: 100vh;
   overflow-y: auto;
+  transition: width 0.5s ease, transform 0.5s ease;
 }
+
+#toggle-sidebar-btn {
+  border: none;
+  cursor: pointer;
+  align-self: flex-start;
+  color: red;
+  transition: transform 0.3s ease;
+}
+
+#toggle-sidebar-btn svg {
+  fill: #455A64;
+  transition: transform 0.3s ease;
+}
+
+#sidebar.active #toggle-sidebar-btn svg {
+  transform: rotate(180deg);
+}
+
+#sidebar h2, #sidebar form, #sidebar ul {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+#sidebar.active h2, #sidebar.active form, #sidebar.active ul {
+  opacity: 1;
+}
+
+
 
 #search-bar-form {
   position: relative;
@@ -337,7 +372,66 @@ input[type="checkbox"]:checked ~ .todo-text, input[type="checkbox"]:checked ~ .t
 input[type="checkbox"]{
   display: none;
 }
-@media(max-width: 500px){
+
+@media (max-width: 768px) {
+  body {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "header"
+      "content";
+  }
+
+  #sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: 100%;
+    transform: translateX(-100%);
+    z-index: 999;
+    grid-area: sidebar;
+  }
+
+  .flex-container, .flex-container-prompt {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .content, .empty-prompt {
+    width: 100%;
+  }
+
+  #title {
+    margin: 20px 0;
+    font-size: 2rem;
+  }
+
+  #toggle-sidebar-btn {
+    display: block;
+  }
+
+}
+
+@media(max-width: 500px) {
+  html {
+    font-size: 12pt;
+  }
+  #add-btn {
+    position: static;
+    width: 100%;
+    padding: 0.9375rem;
+    margin-top: 0.625rem;
+    height: auto;
+  }
+  h1 {
+    margin-top: 50px;
+    font-size: 15vw;
+  }
+}
+
+
+/* @media(max-width: 500px){
   html{
     font-size: 12pt;
   }
@@ -352,4 +446,4 @@ input[type="checkbox"]{
     margin-top: 50px;
     font-size: 15vw;
   }
-}
+} */
