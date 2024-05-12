@@ -8,7 +8,8 @@ export class SidebarHandler {
 
   init() {
     this.toggleBtn.addEventListener('click', () => {
-      this.sidebar.classList.toggle('active');
+      sidebar.classList.toggle('active');
+      // body.classList.toggle('sidebar-expanded');
       this.body.classList.toggle('sidebar-expanded');
 
       if (this.sidebar.classList.contains('active')) {
