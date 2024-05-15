@@ -4,8 +4,8 @@
   --secondary-color: #B0BEC5;
   --accent-color: #FF9800;
   --text-color: #37474F; 
-  --sidebar-width: 4rem; /* Szerokość zminimalizowanego sidebaru */
-  --sidebar-expanded-width: 18rem; /* Szerokość rozwiniętego sidebaru */
+  --sidebar-width: 4rem;
+  --sidebar-expanded-width: 18rem;
 }
 
 *{
@@ -47,13 +47,13 @@ body.sidebar-expanded{
   background-color: var(--primary-color);
   height: 100vh;
   width: var(--sidebar-width);
-  overflow-y: auto;
-  overflow-x: hidden; 
+  overflow: hidden; 
   transition: width 0.5s ease;
 }
 
 #sidebar.active {
   width: var(--sidebar-expanded-width);
+  overflow: auto;
 }
 
 #toggle-sidebar-btn {
@@ -72,7 +72,7 @@ body.sidebar-expanded{
 }
 
 #sidebar h2, #sidebar form, #sidebar ul {
-  opacity: 0;
+  opacity: 0.5;
   pointer-events: none;
 }
 
@@ -81,35 +81,32 @@ body.sidebar-expanded{
   pointer-events: auto;
 }
 
+
 #sidebar h2 {
   white-space: nowrap;
-  overflow: hidden;
   text-overflow: ellipsis;
 }
 
 #search-bar-form {
-  position: relative;
   display: flex;
+  width: 100%;
   align-items: center;
-  padding-right: 2.5rem;
 }
 
 #search-list-input {
-  flex-grow: 1;
+  width: 100%;
   border: none;
   outline: none;
-  /* padding: 0.75rem 2.5rem 0.75rem 1.25rem; */
-  padding: 0.75rem 1.25rem;
+  padding: 0.75rem;
   font-size: 1rem;
   background: none;
   color: var(--text-color);
 }
 
 #search-list-btn {
-  position: absolute;
-  right: 0;
-  /* margin-right: 0.25rem; */
   padding: 0.25rem;
+  margin-left: 0.25rem;
+  margin-right: 0.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -169,8 +166,9 @@ body.sidebar-expanded{
   list-style: none;
   padding: 0;
   border-radius: 15px;
-  max-height: 300px;
+  transition: none;
 }
+
 
 #list-names li:not(:last-child) {
   margin-bottom: 10px;
@@ -262,6 +260,11 @@ body.sidebar-expanded{
 .list-item {
   background-color: var(--background);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  height: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 15px;
 }
 
 .drag-btn.dragging {
@@ -290,12 +293,12 @@ body.sidebar-expanded{
 }
 
 .todo, .list-item {
-  padding: 0 12px;
-  gap: 2px;
-  border-radius: 15px;
   display: flex;
   align-items: center;
+  padding: 0 12px;
+  border-radius: 15px;
 }
+
 
 .icon-container {
   display: flex;
