@@ -12,8 +12,8 @@ export class TodoView {
 
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
-    this.content = document.querySelector('.flex-container');
-    this.emptyPrompt = document.querySelector('.flex-container-prompt');
+    this.content = document.querySelector(".content");
+    this.emptyPrompt = document.querySelector(".flex-container-prompt");
 
     this.setupEventListeners();
     this.setupSortable();
@@ -131,13 +131,16 @@ export class TodoView {
 
     if (currentListId) {
       const currentList = this.model.lists.get(currentListId);
-      document.getElementById('current-list-name').textContent = currentList ? currentList.name : 'No active list';
+      document.getElementById('current-list-name').textContent = currentList ? 
+      currentList.name : 'No active list';
       this.content.style.display = 'flex';
       this.emptyPrompt.style.display = 'none';
+      console.log("111");
     } else {
       document.getElementById('current-list-name').textContent = 'No active list';
       this.content.style.display = 'none';
       this.emptyPrompt.style.display = 'flex';
+      console.log("222");
     }
   }
 }

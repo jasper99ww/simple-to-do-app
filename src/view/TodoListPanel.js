@@ -1,7 +1,7 @@
 import { TodoListPanelFactory } from '../utils/TodoListPanelFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { saveIcon } from '../utils/Icons.js';
-import { setCursorToEnd } from '../utils/setCursorToEnd.js';
+import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
 export class TodoListPanel {
 
@@ -13,7 +13,7 @@ export class TodoListPanel {
     // Cache DOM elements
     this.firstListForm = document.getElementById("first-list-form");
     this.listForm = document.getElementById("list-form");
-    this.listContainer = document.getElementById("list-names");
+    this.listContainer = document.getElementById("todo-lists-container");
 
     this.setupEventListeners();
     this.setupSortable();
@@ -104,7 +104,7 @@ export class TodoListPanel {
 
    // Handle click on the delete button
    handleDeleteButtonClick(e) {
-    const deleteButton = e.target.closest(".todo-list-delete-btn");
+    const deleteButton = e.target.closest(".delete-list-btn");
     if (deleteButton) {
       const listItem = deleteButton.closest("li");
       const listId = listItem.dataset.listId;
