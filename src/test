@@ -4,10 +4,10 @@
   --secondary-color: #B0BEC5;
   --accent-color: #FF9800;
   --text-color: #37474F; 
-  --sidebar-collapsed-width: 0vw;
-  --sidebar-width: 18vw;
-  --mobile-sidebar-collapsed-width: 10vw;
-  --mobile-sidebar-width: 80vw;
+  --sidebar-collapsed-width: 0vw; /* 0% szerokości viewport */
+  --sidebar-width: 18vw; /* 20% szerokości viewport */
+  --mobile-sidebar-collapsed-width: 10vw; /* 10% szerokości viewport dla urządzeń mobilnych */
+  --mobile-sidebar-width: 80vw; /* 80% szerokości viewport dla urządzeń mobilnych */
 }
 
 * {
@@ -33,24 +33,35 @@ body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 1.25rem;
   height: 100vh;
+  gap: 0.625rem;
   width: var(--sidebar-width);
   padding: 0.75rem;
   background-color: var(--primary-color);
   transition: width 0.5s ease, background-color 1.5s ease;
 }
+/* 
+align-items: stretch;
+gap: 1.25rem;
+height: 100vh;
+width: var(--sidebar-width);
+padding: 0.75rem;
+overflow: hidden;
+background-color: var(--primary-color);
+transition: width 0.5s ease, background-color 1.5s ease; */
+
 
 #sidebar h2, #sidebar form, #sidebar ul, #sidebar .search-bar-container {
   padding-left: 0.75rem;
+  /* padding-right: 0.75rem; */
   opacity: 1;
   pointer-events: auto;
   transition: opacity 0.5s ease;
 }
 
+
 #sidebar.collapsed {
   width: var(--sidebar-collapsed-width);
-  background: none;
 }
 
 #sidebar.collapsed h2, #sidebar.collapsed form, #sidebar.collapsed ul {
@@ -58,9 +69,24 @@ body {
   pointer-events: none;
 }
 
+#sidebar-toggle #sidebar-content {
+  padding: 0.75rem;
+}
+
+#sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  overflow: hidden;
+  transition: opacity 0.5s ease;
+}
+
+#sidebar.collapsed #sidebar-content {
+  opacity: 0;
+  pointer-events: none;
+}
 
 #toggle-sidebar-btn {
-  align-self: flex-start;
   border: none;
   cursor: pointer;
   background: none;
@@ -72,6 +98,7 @@ body {
 #toggle-sidebar-btn svg {
   fill: #455A64;
 }
+
 
 #toggle-sidebar-btn:hover {
   background-color: var(--primary-color);
@@ -119,7 +146,7 @@ body {
   width: 100%;
   background: none;
   border: 2px solid var(--secondary-color);
-  border-radius: 10rem;
+  border-radius: 1000px;
   font-size: inherit;
   color: var(--text-color);
 }
@@ -141,7 +168,7 @@ body {
   height: 100%;
   padding: 0 1.875rem;
   border: none;
-  border-radius: 10rem;
+  border-radius: 1000px;
   font: inherit;
   font-weight: 600;
   color: var(--background);
@@ -192,6 +219,7 @@ body {
   border: none;
   outline: none;
   padding: 0.75rem 1.25rem;
+  /* margin-right: 5px; */
   font-size: 1rem;
   background-color: rgba(255, 255, 255, 0.2);
   color: var(--text-color);
@@ -199,6 +227,9 @@ body {
 }
 
 #create-list-btn {
+  /* margin-right: 0.675rem; */
+  /* margin-right: 0.5rem; */
+  /* margin-right: 0.5rem; */
   cursor: pointer;
   background: none;
   border: 0;
@@ -216,7 +247,7 @@ body {
   border: 2px solid var(--secondary-color);
   border-radius: 0.75rem;
   background-color: rgba(255, 255, 255, 0.9);
-  transition: border 0.3s ease-in-out;
+  transition: border 0.3s ease-in-out; /* to color border */
 }
 
 #new-list-input:focus, #search-bar-form:focus-within {
@@ -231,6 +262,7 @@ body {
   border-radius: 15px;
 }
 
+
 #title {
   margin-top: 50px;
   margin-bottom: 50px;
@@ -239,6 +271,7 @@ body {
   text-transform: uppercase;
   text-align: center;
   color: var(--accent-color);
+  /* margin-bottom: 20px; Dostosuj odstęp pod tytułem */
 }
 
 .todo {
@@ -256,6 +289,7 @@ body {
   padding: 0 12px;
   border-radius: 15px;
   max-height: 5rem;
+  /* overflow: hidden; Ukryj nadmiarowy tekst */
 }
 
 #todo-lists-container li:not(:last-child) {
@@ -325,6 +359,7 @@ body {
   overflow-wrap: break-word;
 }
 
+
 .todo-list-text{
   overflow: hidden;
   text-overflow: ellipsis;
@@ -339,6 +374,7 @@ body {
   resize: none;
   background: none;
   border: none;
+
 }
 
 .todo-text:focus, .todo-list-text:focus {
@@ -394,6 +430,7 @@ input[type="checkbox"]{
   display: none;
 }
 
+/* Style dla urządzeń o szerokości ekranu do 768px */
 @media (max-width: 768px) {
 
   #main-container.active-overlay::after {
@@ -403,13 +440,12 @@ input[type="checkbox"]{
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, .6);
-    z-index: 9999;
-    transition: background-color 0.5s ease;
+    background-color: rgba(0, 0, 0, .4);
+    z-index: 9999; /* Ustawienie z-index na wartość mniejszą niż zawartość, aby overlay był w tle */
   }
 
   #sidebar:not(.collapsed) + #main-container {
-    position: relative;
+    position: relative; /* Niezbędne, aby pseudo-element był względem tego kontenera */
   }
   
   html {
@@ -427,7 +463,6 @@ input[type="checkbox"]{
 
   #sidebar + #main-container {
     background-color: rgba(0, 0, 0, .4);
-    transition: background-color 0.5s ease;
     /* filter: brightness(0.5); */
     /* background-color: rgba(0, 0, 0, 0.4); */
   }
@@ -438,7 +473,8 @@ input[type="checkbox"]{
 
   #sidebar.collapsed + #main-container {
     background-color: rgba(0, 0, 0, 0);
-    transition: background-color 0.5s ease;
+    /* background-color: rgba(0, 0, 0, .4); */
+    /* filter: brightness(1); */
   }
 
   #add-btn {
@@ -449,9 +485,67 @@ input[type="checkbox"]{
     height: auto;
   }
 
+  #todo-input-form, #first-list-form {
+    /* display: flex;
+    flex-direction: column; */
+    /* width: 100%; */
+  }
+
   .content, .flex-container-prompt {
     width: 100%;
     margin: 0;
   }
 
 }
+
+
+
+<nav id="sidebar">
+    <div id="sidebar-toggle">
+      <button id="toggle-sidebar-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#5f6368">
+          <path d="M120-240v-80h720v80H120Zm0-200v-80h720v80H120Zm0-200v-80h720v80H120Z"/>
+        </svg>
+      </button>
+    </div>
+    <div id="sidebar-content">
+      <h2>My lists</h2>
+      <div class="search-bar-container">
+        <form id="search-bar-form" role="search">
+          <input type="text" id="search-list-input" placeholder="Search lists...">
+          <button type="submit" id="search-list-btn">
+            <img src="src/search.svg" alt="search button">
+          </button>
+        </form>
+      </div>
+      <form id="list-form">
+        <input type="text" id="new-list-input" placeholder="New list name"/>
+        <button id="create-list-btn">+</button>
+      </form>
+      <ul id="todo-lists-container"></ul>
+    </div>
+</nav>
+
+
+  <div id="main-container">
+    <h1 id="title">Todo App</h1>
+
+    <div class="content">
+      <p id="current-list-name">Current List Name</p>
+      <form id="todo-input-form">
+        <input type="text" id="todo-input" placeholder="Add a new task and press enter" autocomplete="off">
+        <button id="add-btn">ADD</button>
+      </form>
+      <ul id="todo-list"></ul>
+    </div>
+  
+    <div class="flex-container-prompt">
+        <h2>Welcome to Todo App!</h2>
+        <h3>You don't have any lists yet. Create your first list now:</h3>
+        <form id="first-list-form">
+          <input type="text" id="first-list-input" placeholder="Enter a name for your first list" autocomplete="off">
+          <button id="create-first-list-btn">Create List</button>
+        </form>
+    </div>
+
+  </div>
