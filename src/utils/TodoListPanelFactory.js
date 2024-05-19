@@ -19,6 +19,7 @@ export class TodoListPanelFactory {
     checkbox.type = 'checkbox';
     checkbox.checked = completed;
     checkbox.id = `list-checkbox-${listId}`;
+    checkbox.setAttribute('aria-label', `Mark list as ${completed ? 'incomplete' : 'complete'}`); // Adding aria-label
     li.appendChild(checkbox);
 
     const labelForCheckbox = document.createElement('label');
@@ -50,6 +51,7 @@ export class TodoListPanelFactory {
     const button = document.createElement('button');
     button.className = 'edit-list-btn';
     button.innerHTML = editIcon;
+    button.setAttribute('aria-label', 'Edit list');
     container.appendChild(button);
   }
 
@@ -57,6 +59,7 @@ export class TodoListPanelFactory {
     const button = document.createElement('button');
     button.className = 'delete-list-btn';
     button.innerHTML = trashIcon;
+    button.setAttribute('aria-label', 'Delete list');
     container.appendChild(button);
   }
 
@@ -64,6 +67,7 @@ export class TodoListPanelFactory {
     const button = document.createElement('button');
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;
+    button.setAttribute('aria-label', 'Drag list');
     container.appendChild(button);
   }
 }

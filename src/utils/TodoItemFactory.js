@@ -18,6 +18,7 @@ export class TodoItemFactory {
     checkbox.type = 'checkbox';
     checkbox.id = `todo-checkbox-${index}`;
     checkbox.checked = todo.completed;
+    checkbox.setAttribute('aria-label', `Mark task as ${todo.completed ? 'incomplete' : 'complete'}`); // Adding aria-label
     li.appendChild(checkbox);
 
     const labelForCheckbox = document.createElement('label');
@@ -48,6 +49,7 @@ export class TodoItemFactory {
     const button = document.createElement('button');
     button.className = 'edit-btn';
     button.innerHTML = editIcon;
+    button.setAttribute('aria-label', 'Edit todo');
     li.appendChild(button);
   }
 
@@ -55,6 +57,7 @@ export class TodoItemFactory {
     const button = document.createElement('button');
     button.className = 'delete-btn';
     button.innerHTML = trashIcon;
+    button.setAttribute('aria-label', 'Delete todo');
     li.appendChild(button);
   }
 
@@ -62,6 +65,7 @@ export class TodoItemFactory {
     const button = document.createElement('button');
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;
+    button.setAttribute('aria-label', 'Drag todo');
     container.appendChild(button);
   }
 }
