@@ -13,7 +13,7 @@ export class TodoView {
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
     this.content = document.querySelector(".content");
-    this.emptyPrompt = document.querySelector(".flex-container-prompt");
+    this.emptyPrompt = document.querySelector(".prompt-container");
 
     this.setupEventListeners();
     this.setupSortable();

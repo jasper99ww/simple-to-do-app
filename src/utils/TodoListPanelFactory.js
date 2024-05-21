@@ -1,4 +1,8 @@
-import { trashIcon, doneIcon, editIcon, dragIcon } from './Icons.js';
+// import { deleteIcon, doneIcon, editIcon, dragIcon } from './Icons.js';
+import deleteIcon from '../assets/icons/delete.svg';
+import doneIcon from '../assets/icons/done.svg';
+import editIcon from '../assets/icons/edit.svg';
+import dragIcon from '../assets/icons/drag.svg';
 
 export class TodoListPanelFactory {
   
@@ -58,7 +62,7 @@ export class TodoListPanelFactory {
   addDeleteButton(container) {
     const button = document.createElement('button');
     button.className = 'delete-list-btn';
-    button.innerHTML = trashIcon;
+    button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete list');
     container.appendChild(button);
   }
