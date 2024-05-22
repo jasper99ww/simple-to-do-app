@@ -1,4 +1,3 @@
-// import { deleteIcon, doneIcon, editIcon, dragIcon } from './Icons.js';
 import deleteIcon from '../assets/icons/delete.svg';
 import doneIcon from '../assets/icons/done.svg';
 import editIcon from '../assets/icons/edit.svg';

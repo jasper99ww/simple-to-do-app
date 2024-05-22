@@ -10,6 +10,24 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.(png|jpe?g|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'assets/images/',
+              publicPath: 'assets/images/',
+            }
+          }
+        ]
+      },
+      {
+        test: /\.svg$/,
+        include: path.resolve(__dirname, 'src/assets/icons'),
+        use: 'svg-inline-loader', // Użyj svg-inline-loader dla wszystkich plików SVG,
+      },
+      {
         test: /\.js$/,
         exclude: /node_modules/,
         use: {
@@ -23,16 +41,21 @@ module.exports = {
         test: /\.css$/,
         use: ['style-loader', 'css-loader'],
       },
-      {
-        test: /\.svg$/,
-        use: 'svg-inline-loader',
-      },
     ],
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './dist/index.html',
+      template: './src/index.html',
+      favicon: './src/assets/images/favicon.png', // Użycie file-loader dla favicon PNG
     }),
   ],
+  devServer: {
+    static: {
+      directory: path.resolve(__dirname, 'dist'),
+    },
+    compress: true,
+    port: 9000,
+    open: true,
+  },
   mode: 'development',
 };

@@ -96,7 +96,7 @@ body {
   justify-content: center;
   align-items: center;
   width: 100%;
-  padding: 2rem 4rem 0rem 4rem;
+  padding: 2rem 6rem 0rem 6rem;
 }
 
 .content,
@@ -331,6 +331,7 @@ input[type="checkbox"] {
 .todo-list-text {
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .todo-text,
@@ -348,6 +349,10 @@ input[type="checkbox"] {
   margin: 0.625rem;
   box-shadow: 0 0 0.5rem var(--secondary-color);
   transition: box-shadow 0.3s ease-in-out;
+}
+
+.todo-list-text:focus{
+  white-space: normal;
 }
 
 /* Code for the buttons */
@@ -381,6 +386,11 @@ input[type="checkbox"] {
 .icon-container {
   display: flex;
   justify-content: space-between;
+}
+
+svg {
+  width: 1.5rem; /* 24px */
+  height: 1.5rem; /* 24px */
 }
 
 .drag-btn {
@@ -467,6 +477,11 @@ input[type="checkbox"] {
     transition: background-color 0.5s ease;
   }
 
+  #main-container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+
   #sidebar:not(.collapsed) + #main-container {
     position: relative;
   }
@@ -486,7 +501,7 @@ input[type="checkbox"] {
     position: static;
     width: 100%;
     margin-top: 10px;
-    padding: 15px;
+    padding: 10px;
     height: auto;
   }
 }

@@ -1,6 +1,8 @@
 import { TodoListPanelFactory } from '../utils/TodoListPanelFactory.js';
+import { SearchHandler } from '../utils/SearchHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
-import { saveIcon } from '../utils/Icons.js';
+// import { saveIcon } from '../utils/Icons.js';
+import saveIcon from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
 export class TodoListPanel {
@@ -14,6 +16,8 @@ export class TodoListPanel {
     this.firstListForm = document.getElementById("first-list-form");
     this.listForm = document.getElementById("list-form");
     this.listContainer = document.getElementById("todo-lists-container");
+
+    this.searchHandler = new SearchHandler(this.render.bind(this));
 
     this.setupEventListeners();
     this.setupSortable();
@@ -135,16 +139,18 @@ export class TodoListPanel {
   }
 
   // Render the list panel
-  render() {
+  render(query = '') {
     this.listContainer.innerHTML = '';
 
     this.model.lists.forEach((list, id) => {
-      const listItem = this.factory.createTodoListPanel(list, id);
-      listItem.dataset.listId = id;
-      if (id === this.model.currentListId) {
-        listItem.classList.add('active');
+      if (list.name.toLowerCase().includes(query)) {
+        const listItem = this.factory.createTodoListPanel(list, id);
+        listItem.dataset.listId = id;
+        if (id === this.model.currentListId) {
+          listItem.classList.add('active');
+        }
+        this.listContainer.appendChild(listItem);
       }
-      this.listContainer.appendChild(listItem);
     });
   }
 
