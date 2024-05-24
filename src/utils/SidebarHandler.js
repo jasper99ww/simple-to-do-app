@@ -1,9 +1,8 @@
 export class SidebarHandler {
   constructor() {
     this.sidebar = document.querySelector("#sidebar");
-    this.sidebarContent = document.querySelector("#sidebar-content");
-    this.mainContainer = document.querySelector("#main-container");
     this.toggleBtn = document.querySelector("#toggle-sidebar-btn");
+    this.mainContainer = document.querySelector("#main-container");
     this.init();
   }
 
@@ -15,7 +14,6 @@ export class SidebarHandler {
 
   toggleSidebar() {
     const isCollapsed = this.sidebar.classList.toggle('collapsed');
-    this.sidebarContent.style.visibility = isCollapsed ? 'hidden' : 'visible';
     this.toggleBtn.setAttribute('aria-expanded', !isCollapsed);
 
     if (!isCollapsed && window.innerWidth <= 768) {
@@ -34,5 +32,3 @@ export class SidebarHandler {
     }
   }
 }
-
-

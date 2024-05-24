@@ -138,7 +138,7 @@ export class TodoListPanel {
     }
   }
 
-  // Render the list panel
+  // Render the list panel filtered by search query
   render(query = '') {
     this.listContainer.innerHTML = '';
 

@@ -5,6 +5,8 @@
   --accent-color: #D32F2F;   
   --text-color: #212121;
   --base-font-size: 1rem; 
+
+  --sidebar-padding: 0.75rem;
 }
 
 * {
@@ -23,23 +25,73 @@ body {
   display: flex;
   min-height: 100vh;
   background-color: var(--background);
+  overflow-y: auto;
 }
 
+/* Code for the sidebar */
 #sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   height: 100vh;
   width: 22vw;
+  padding: var(--sidebar-padding);
   background-color: var(--primary-color);
+  will-change: width, background-color;
   transition: width 0.5s ease, background-color 0.5s ease;
+  z-index: 1000;
+}
+
+#sidebar-header {
+  display: flex;
+  justify-content: flex-start;
+  padding: var(--sidebar-padding);
+  z-index: 1001;
+}
+
+#toggle-sidebar-btn {
+  border-radius: 50%;
+  transition: transform 0.5s ease, background-color 0.3s;
+}
+
+#toggle-sidebar-btn,
+#dark-mode-btn {
+  padding: var(--sidebar-padding);
+  border: none;
+  cursor: pointer;
+  background: none;
+}
+
+#toggle-sidebar-btn svg {
+  fill: #455A64;
+}
+
+#toggle-sidebar-btn:hover {
+  background-color: var(--primary-color);
+}
+
+#sidebar #toggle-sidebar-btn {
+  transform: rotate(180deg);
+}
+
+#sidebar-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  gap: 1.25rem;
+  padding: var(--sidebar-padding);
 }
 
 #sidebar h2,
 #sidebar form,
 #sidebar ul,
 #sidebar .search-bar-container {
-  padding-left: 0.75rem;
+  padding-left: var(--sidebar-padding);
   opacity: 1;
   pointer-events: auto;
 }
@@ -56,57 +108,45 @@ body {
   pointer-events: none;
 }
 
-#sidebar-header {
-  padding: 0.75rem;
-}
-
-#sidebar-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding: 0.75rem;
-}
-
-#toggle-sidebar-btn {
-  align-self: flex-start;
-  border: none;
-  cursor: pointer;
-  background: none;
-  padding: 0.75rem;
-  border-radius: 50%;
-  transition: transform 0.5s ease, background-color 0.3s;
-}
-
-#toggle-sidebar-btn svg {
-  fill: #455A64;
-}
-
-#toggle-sidebar-btn:hover {
-  background-color: var(--primary-color);
-}
-
-#sidebar #toggle-sidebar-btn {
-  transform: rotate(180deg);
-}
-
+/* Code for the main content */
 #main-container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  padding: 2rem 6rem 0rem 6rem;
+  flex-grow: 1;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ overflow-y: auto;
+ height: 100vh;
+ transition: margin-left 0.5s ease, padding 0.5s ease;
+ padding-left: var(--sidebar-padding);
+ padding-right: var(--sidebar-padding);
+ margin-left: 22vw;
 }
 
-.content,
+
+#sidebar.collapsed + #main-container {
+  margin-left: 0;
+}
+
+#dark-mode-container {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background-color: var(--background);
+  width: 100%;
+  padding: var(--sidebar-padding);
+}
+
+.todo-container,
 .prompt-container {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 2rem;
+  gap: 3rem;
   width: 100%;
   max-width: 60rem;
 }
@@ -240,13 +280,18 @@ body {
 
 #todo-lists-container {
   list-style: none;
-  padding: 0;
   border-radius: 1rem;
+  max-height: 100%;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+  margin-right: -10px;
+  padding-right: 10px;
+  box-sizing: content-box;
 }
 
 #title {
-  margin-top: 3.125rem;
-  margin-bottom: 3.125rem;
+  margin-top: var(--sidebar-padding);
+  margin-bottom: 3rem;
   font-size: 3rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -255,7 +300,13 @@ body {
 }
 
 #todo-list {
+  flex-grow: 1;
   width: 100%;
+  /* max-height: 100%; */
+  padding-right: 0.75rem;
+  /* max-height: 90vh; */
+  /* overflow-y: auto; */
+  margin-bottom: 1rem;
 }
 
 .todo {
@@ -290,7 +341,6 @@ body {
 }
 
 /* Code for the custom checkbox */
-
 .custom-checkbox {
   border: 2px solid var(--accent-color);
   border-radius: 50%;
@@ -322,7 +372,6 @@ input[type="checkbox"] {
 }
 
 /* Code for the text input */
-
 .todo-text {
   overflow: hidden;
   overflow-wrap: break-word;
@@ -389,8 +438,8 @@ input[type="checkbox"] {
 }
 
 svg {
-  width: 1.5rem; /* 24px */
-  height: 1.5rem; /* 24px */
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
 .drag-btn {
