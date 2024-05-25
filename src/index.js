@@ -1,7 +1,6 @@
 import { TodoModel } from './model/TodoModel.js';
 import { TodoView } from './view/TodoView.js';
 import { TodoListPanel } from './view/TodoListPanel.js';
-import { SidebarHandler } from './utils/SidebarHandler.js';
 import './style.css';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -13,5 +12,4 @@ document.addEventListener('DOMContentLoaded', () => {
   const model = new TodoModel();
   const view = new TodoView(model);
   const listPanel = new TodoListPanel(model);
-  const sidebarHandler = new SidebarHandler();
 });

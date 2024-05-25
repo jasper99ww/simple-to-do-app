@@ -149,6 +149,7 @@ export class TodoModel {
     });
     this.lists = newList;
     this.saveTodos();
+    this.notifyObservers();
   }
 
   reorderItems(listId, newOrder) {

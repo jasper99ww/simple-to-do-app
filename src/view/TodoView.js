@@ -1,7 +1,7 @@
 import { TodoItemFactory } from '../utils/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
-// import { saveIcon } from '../utils/Icons.js';
-import saveIcon from '../assets/icons/save.svg';
+import { DarkModeHandler } from '../utils/DarkModeHandler.js';
+import { saveIcon } from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
 export class TodoView {
@@ -10,15 +10,16 @@ export class TodoView {
     this.model = model;
     this.model.addObserver(this);
     this.factory = new TodoItemFactory(model);
+    this.darkModeHandler = new DarkModeHandler();
 
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
     this.content = document.querySelector(".todo-container");
     this.emptyPrompt = document.querySelector(".prompt-container");
-
     this.setupEventListeners();
     this.setupSortable();
     this.update();
+    
   }
 
   // Setup event listeners for form submission and todo list interactions

@@ -1,4 +1,5 @@
 import { TodoListPanelFactory } from '../utils/TodoListPanelFactory.js';
+import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 // import { saveIcon } from '../utils/Icons.js';
@@ -11,13 +12,13 @@ export class TodoListPanel {
     this.model = model;
     this.model.addObserver(this);
     this.factory = new TodoListPanelFactory(this.model);
+    this.sidebarHandler = new SidebarHandler();
+    this.searchHandler = new SearchHandler(this.render.bind(this));
 
     // Cache DOM elements
     this.firstListForm = document.getElementById("first-list-form");
     this.listForm = document.getElementById("list-form");
     this.listContainer = document.getElementById("todo-lists-container");
-
-    this.searchHandler = new SearchHandler(this.render.bind(this));
 
     this.setupEventListeners();
     this.setupSortable();

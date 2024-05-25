@@ -14,13 +14,18 @@ export class SortableHandler {
       forceFallback: true,
       fallbackClass: 'sortable-fallback',
       handle: this.handleSelector,
-      onChoose: (e) => {
+      onStart: (evt) => {
         document.body.classList.add("grabbing");
       },
       onEnd: (evt) => {
         document.body.classList.remove('grabbing');
         this.updateCallback();
-      }
+      },
+      // onMove: (evt) => {
+      //   if (evt.dragged && !evt.dragging) {
+      //     document.body.classList.remove('grabbing');
+      //   }
+      // }
     });
-  }
+  }  
 }
