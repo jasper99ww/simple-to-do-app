@@ -3,7 +3,7 @@ import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 // import { saveIcon } from '../utils/Icons.js';
-import saveIcon from '../assets/icons/save.svg';
+import { saveIcon } from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
 export class TodoListPanel {

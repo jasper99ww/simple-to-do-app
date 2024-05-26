@@ -5,23 +5,42 @@ export class DarkModeHandler {
   }
 
   init() {
+    this.checkSystemPreference();
     this.darkModeCheckbox.addEventListener('change', () => {
-      this.toggleDarkMode();
+      this.toggleDarkMode(this.darkModeCheckbox.checked);
+      this.savePreference();
     });
   }
 
- toggleDarkMode() {
-    // Pomocnicza funkcja do dodawania/usuwanie klasy 'dark'
-    const toggleClass = (selector, className) => {
+  checkSystemPreference() {
+   
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    console.log('checkSystemPreference is ' + prefersDark);
+    const userPreference = this.loadPreference();
+    const isDarkMode = userPreference === null ? prefersDark : userPreference;
+    this.setDarkMode(isDarkMode);
+  }
+
+  setDarkMode(isDark) {
+    this.darkModeCheckbox.checked = isDark;
+    this.toggleDarkMode(isDark);
+  }
+
+  savePreference() {
+    localStorage.setItem('darkMode', this.darkModeCheckbox.checked);
+  }
+
+  loadPreference() {
+    return JSON.parse(localStorage.getItem('darkMode'));
+  }
+
+  toggleDarkMode(shouldAddDark) {
+    const toggleClass = (selector, className, add) => {
       document.querySelectorAll(selector).forEach(element => {
-        element.classList.toggle(className);
+        element.classList.toggle(className, add);
       });
     };
 
-    // Zmiana klas dla głównych komponentów
-    toggleClass('body, #main-container, #sidebar', 'dark');
-
-    // Dodatkowo zmienia klasę dla wszystkich elementów listy
-    toggleClass('.list-item, .todo', 'dark');
+    toggleClass('body, #main-container, #sidebar, .list-item, .todo', 'dark', shouldAddDark);
   }
 }

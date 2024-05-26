@@ -9,7 +9,6 @@ export class TodoListPanelFactory {
     const li = document.createElement('li');
     li.className = 'list-item';
     li.dataset.listId = listId;
-    li.draggable = true;
 
     this.addCheckbox(li, list.completed, listId);
     this.addTextLabel(li, list.name, listId);
