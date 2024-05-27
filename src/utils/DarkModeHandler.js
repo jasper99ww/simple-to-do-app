@@ -13,9 +13,7 @@ export class DarkModeHandler {
   }
 
   checkSystemPreference() {
-   
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    console.log('checkSystemPreference is ' + prefersDark);
     const userPreference = this.loadPreference();
     const isDarkMode = userPreference === null ? prefersDark : userPreference;
     this.setDarkMode(isDarkMode);
@@ -35,12 +33,6 @@ export class DarkModeHandler {
   }
 
   toggleDarkMode(shouldAddDark) {
-    const toggleClass = (selector, className, add) => {
-      document.querySelectorAll(selector).forEach(element => {
-        element.classList.toggle(className, add);
-      });
-    };
-
-    toggleClass('body, #main-container, #sidebar, .list-item, .todo', 'dark', shouldAddDark);
+    document.body.classList.toggle('dark', shouldAddDark);
   }
 }

@@ -1,7 +1,7 @@
 import { TodoItemFactory } from '../utils/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { DarkModeHandler } from '../utils/DarkModeHandler.js';
-import { saveIcon } from '../assets/icons/save.svg';
+import saveIcon from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
 export class TodoView {
