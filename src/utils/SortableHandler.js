@@ -18,14 +18,14 @@ export class SortableHandler {
         document.body.classList.add("grabbing");
       },
       onEnd: (evt) => {
-        document.body.classList.remove('grabbing');
+        document.body.classList.remove("grabbing");
         this.updateCallback();
       },
-      // onMove: (evt) => {
-      //   if (evt.dragged && !evt.dragging) {
-      //     document.body.classList.remove('grabbing');
-      //   }
-      // }
+      onMove: (evt) => {
+        if (evt.dragged && !evt.dragging) {
+          document.body.classList.remove('grabbing');
+        }
+      }
     });
   }  
 }
