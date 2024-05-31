@@ -54,6 +54,7 @@ export class TodoItemFactory {
     button.className = 'edit-btn';
     button.innerHTML = editIcon;
     button.setAttribute('aria-label', 'Edit todo');
+    button.setAttribute('data-tooltip', 'Edit this task');
     li.appendChild(button);
   }
 
@@ -62,6 +63,7 @@ export class TodoItemFactory {
     button.className = 'delete-btn';
     button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete todo');
+    button.setAttribute('data-tooltip', 'Delete this task');
     li.appendChild(button);
   }
 
@@ -70,6 +72,7 @@ export class TodoItemFactory {
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;
     button.setAttribute('aria-label', 'Drag todo');
+    button.setAttribute('data-tooltip', 'Drag this task');
     container.appendChild(button);
   }
 }

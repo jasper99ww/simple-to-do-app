@@ -54,6 +54,7 @@ export class TodoListPanelFactory {
     button.className = 'edit-list-btn';
     button.innerHTML = editIcon;
     button.setAttribute('aria-label', 'Edit list');
+    button.setAttribute('data-tooltip', 'Edit this list');
     container.appendChild(button);
   }
 
@@ -62,6 +63,7 @@ export class TodoListPanelFactory {
     button.className = 'delete-list-btn';
     button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete list');
+    button.setAttribute('data-tooltip', 'Delete this list');
     container.appendChild(button);
   }
 
@@ -70,6 +72,7 @@ export class TodoListPanelFactory {
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;
     button.setAttribute('aria-label', 'Drag list');
+    button.setAttribute('data-tooltip', 'Drag this list');
     container.appendChild(button);
   }
 }
