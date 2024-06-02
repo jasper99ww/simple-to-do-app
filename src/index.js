@@ -14,110 +14,120 @@ document.addEventListener('DOMContentLoaded', () => {
   const listPanel = new TodoListPanel(model);
 
   let activeTooltip = null;
+  let isSidebarTransitioning = false;
+  let tooltipTimeout;
 
-document.querySelectorAll('[data-tooltip]').forEach(element => {
-    let tooltipTimeout;
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            if (isSidebarTransitioning) return;
+            
+            tooltipTimeout = setTimeout(() => {
+                if (activeTooltip) {
+                    activeTooltip.remove();
+                    activeTooltip = null;
+                }
 
-    element.addEventListener('mouseenter', function() {
-        tooltipTimeout = setTimeout(() => {
-            const tooltipText = this.getAttribute('data-tooltip');
-            const tooltip = document.createElement('div');
-            tooltip.textContent = tooltipText;
-            tooltip.style.position = 'absolute';
-            tooltip.style.backgroundColor = '#333';
-            tooltip.style.color = 'white';
-            tooltip.style.borderRadius = '4px';
-            tooltip.style.padding = '5px 10px';
-            tooltip.style.zIndex = '10000';
-            tooltip.style.pointerEvents = 'none';
-            tooltip.style.whiteSpace = 'nowrap';
-            tooltip.style.boxShadow = '0px 4px 8px rgba(0,0,0,0.3)';
-            document.body.appendChild(tooltip);
-            activeTooltip = tooltip;
+                const tooltipText = this.getAttribute('data-tooltip');
+                const tooltip = document.createElement('div');
+                tooltip.textContent = tooltipText;
+                tooltip.style.position = 'absolute';
+                tooltip.style.backgroundColor = '#333';
+                tooltip.style.color = 'white';
+                tooltip.style.borderRadius = '4px';
+                tooltip.style.padding = '5px 10px';
+                tooltip.style.zIndex = '10000';
+                tooltip.style.pointerEvents = 'none';
+                tooltip.style.whiteSpace = 'nowrap';
+                tooltip.style.boxShadow = '0px 4px 8px rgba(0,0,0,0.3)';
 
-            const rect = this.getBoundingClientRect();
-            const tooltipWidth = tooltip.offsetWidth;
-            const tooltipHeight = tooltip.offsetHeight;
+                document.body.appendChild(tooltip);
+                activeTooltip = tooltip;
 
-            let left = rect.left + rect.width / 2 - tooltipWidth / 2;
-            left = Math.max(left, 5); // Prevent tooltip from being cut off on the left side
-            left = Math.min(left, window.innerWidth - tooltipWidth - 5); // Prevent tooltip from being cut off on the right side
-            tooltip.style.left = `${left}px`;
+                adjustTooltipPosition(tooltip, this);
+            }, 300);
+        });
 
-            let top = rect.top + window.scrollY - tooltipHeight - 5;
-            let arrowDirection = 'top';
-
-            if (top < 5) {
-                top = rect.bottom + window.scrollY + 5;
-                arrowDirection = 'bottom';
+        element.addEventListener('mouseleave', function() {
+            clearTimeout(tooltipTimeout);
+            if (activeTooltip) {
+                activeTooltip.remove();
+                activeTooltip = null;
             }
-            tooltip.style.top = `${top}px`;
+        });
 
-            const svgIcon = element.querySelector('svg');
-            const svgRect = svgIcon ? svgIcon.getBoundingClientRect() : rect;
-            const arrow = document.createElement('div');
-            arrow.style.position = 'absolute';
-            arrow.style.width = '0';
-            arrow.style.height = '0';
-            arrow.style.borderStyle = 'solid';
-            arrow.style.borderWidth = '0 5px 5px 5px'; // Reversed border width for bottom arrow
-            arrow.style.borderColor = 'transparent transparent #333 transparent'; // Reversed border color for bottom arrow
-
-            let arrowLeft;
-            if (element.id === 'darkmode-toggle') {
-                const labelRect = element.querySelector('label').getBoundingClientRect();
-                arrowLeft = labelRect.left + labelRect.width / 2 - left;
-            } else {
-                arrowLeft = svgRect.left + svgRect.width / 2 - left;
+        element.addEventListener('click', function() {
+            console.log("CICKED");
+            clearTimeout(tooltipTimeout);
+            if (activeTooltip) {
+                activeTooltip.remove();
+                activeTooltip = null;
             }
-
-            arrow.style.left = `${arrowLeft}px`;
-            arrow.style.transform = 'translateX(-50%)';
-
-            if (arrowDirection === 'bottom') {
-                arrow.style.top = '-5px'; // Position arrow for bottom tooltip
-            } else {
-                arrow.style.bottom = '-5px'; // Position arrow for top tooltip
-                arrow.style.borderWidth = '5px 5px 0 5px'; // Normal border width for top arrow
-                arrow.style.borderColor = '#333 transparent transparent transparent'; // Normal border color for top arrow
-            }
-
-            tooltip.appendChild(arrow);
-        }, 300);
+        });
     });
 
-    element.addEventListener('mouseleave', function() {
+    function adjustTooltipPosition(tooltip, targetElement) {
+        const rect = targetElement.getBoundingClientRect();
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+
+        let left = rect.left + rect.width / 2 - tooltipWidth / 2;
+        left = Math.max(left, 5);
+        left = Math.min(left, window.innerWidth - tooltipWidth - 5);
+        tooltip.style.left = `${left}px`;
+
+        let top = rect.top + window.scrollY - tooltipHeight - 10;
+        let arrowDirection = 'top';
+
+        if (top < 5) {
+            top = rect.bottom + window.scrollY + 10;
+            arrowDirection = 'bottom';
+        }
+        tooltip.style.top = `${top}px`;
+
+        createTooltipArrow(tooltip, targetElement, arrowDirection, left);
+    }
+
+    function createTooltipArrow(tooltip, targetElement, arrowDirection, left) {
+        const svgIcon = targetElement.querySelector('svg');
+        const svgRect = svgIcon ? svgIcon.getBoundingClientRect() : targetElement.getBoundingClientRect();
+
+        let arrowLeft;
+        if (targetElement.id === 'darkmode-toggle-label') {
+            const labelRect = targetElement.getBoundingClientRect();
+            arrowLeft = labelRect.left + labelRect.width / 2 - left;
+        } else {
+            arrowLeft = svgRect.left + svgRect.width / 2 - left;
+        }
+
+        const arrow = document.createElement('div');
+        arrow.style.position = 'absolute';
+        arrow.style.width = '0';
+        arrow.style.height = '0';
+        arrow.style.borderStyle = 'solid';
+        arrow.style.borderWidth = '0 5px 5px 5px';
+        arrow.style.borderColor = 'transparent transparent #333 transparent';
+        arrow.style.left = `${arrowLeft}px`;
+        arrow.style.transform = 'translateX(-50%)';
+
+        if (arrowDirection === 'bottom') {
+            arrow.style.top = '-5px';
+        } else {
+            arrow.style.bottom = '-5px';
+            arrow.style.borderWidth = '5px 5px 0 5px';
+            arrow.style.borderColor = '#333 transparent transparent transparent';
+        }
+
+        tooltip.appendChild(arrow);
+    }
+
+    const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+    toggleSidebarBtn.addEventListener('click', () => {
+        isSidebarTransitioning = true;
         clearTimeout(tooltipTimeout);
         if (activeTooltip) {
             activeTooltip.remove();
             activeTooltip = null;
         }
+        setTimeout(() => isSidebarTransitioning = false, 500);
     });
-});
-
-const toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
-toggleSidebarBtn.addEventListener('click', () => {
-    if (activeTooltip) {
-        activeTooltip.remove();
-        activeTooltip = null;
-    }
-});
-
-
-
-
-  
-  
-  
-
-
-  
-
-  
-  
-  
-  
-
-
-
 });

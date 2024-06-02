@@ -22,9 +22,9 @@ export class SortableHandler {
         this.updateCallback();
       },
       onMove: (evt) => {
-        if (evt.dragged && !evt.dragging) {
-          document.body.classList.remove('grabbing');
-        }
+        // if (evt.dragged && !evt.dragging) {
+        //   document.body.classList.remove('grabbing');
+        // }
       }
     });
   }  

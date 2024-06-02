@@ -626,6 +626,25 @@ body.dark .icon-container button:hover {
 }
 
 
+.tooltip {
+  position: absolute;
+  background-color: #333;
+  color: white;
+  border-radius: 4px;
+  padding: 5px 10px;
+  z-index: 10000;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  content: "";
+}
 
 
 
