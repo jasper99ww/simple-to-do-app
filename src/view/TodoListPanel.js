@@ -1,6 +1,7 @@
 import { TodoListPanelFactory } from '../utils/TodoListPanelFactory.js';
 import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
+import { TooltipHandler } from '../utils/TooltipHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 // import { saveIcon } from '../utils/Icons.js';
 import saveIcon from '../assets/icons/save.svg';
@@ -14,6 +15,7 @@ export class TodoListPanel {
     this.factory = new TodoListPanelFactory(this.model);
     this.sidebarHandler = new SidebarHandler();
     this.searchHandler = new SearchHandler(this.render.bind(this));
+    this.tooltipHandler = new TooltipHandler();
 
     // Cache DOM elements
     this.firstListForm = document.getElementById("first-list-form");
@@ -158,5 +160,6 @@ export class TodoListPanel {
   // Update the UI
   update() {
     this.render();
+    this.tooltipHandler.initializeTooltips(this.listContainer);
   }
 }

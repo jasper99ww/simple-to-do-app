@@ -20,12 +20,9 @@ export class SortableHandler {
       onEnd: (evt) => {
         document.body.classList.remove("grabbing");
         this.updateCallback();
+        const event = new CustomEvent('items-reordered', { detail: { container: this.container } });
+        document.dispatchEvent(event);
       },
-      onMove: (evt) => {
-        // if (evt.dragged && !evt.dragging) {
-        //   document.body.classList.remove('grabbing');
-        // }
-      }
     });
   }  
 }

@@ -1,6 +1,7 @@
 import { TodoItemFactory } from '../utils/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { DarkModeHandler } from '../utils/DarkModeHandler.js';
+import { TooltipHandler } from '../utils/TooltipHandler.js';
 import saveIcon from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
@@ -11,6 +12,8 @@ export class TodoView {
     this.model.addObserver(this);
     this.factory = new TodoItemFactory(model);
     this.darkModeHandler = new DarkModeHandler();
+    this.tooltipHandler = new TooltipHandler();
+
 
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
@@ -120,6 +123,8 @@ export class TodoView {
     } else {
       console.log("Nie znaleziono listy lub bieżąca lista jest niezdefiniowana.");
     }
+
+    this.tooltipHandler.initializeTooltips(this.todoList);
   }
 
   // Update the UI
