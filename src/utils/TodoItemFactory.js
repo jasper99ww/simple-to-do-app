@@ -64,6 +64,7 @@ export class TodoItemFactory {
     button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete todo');
     button.setAttribute('data-tooltip', 'Delete this task');
+   
     li.appendChild(button);
   }
 

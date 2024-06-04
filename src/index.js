@@ -14,5 +14,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const view = new TodoView(model);
   const listPanel = new TodoListPanel(model);
   const tooltipHandler = new TooltipHandler(); 
-  tooltipHandler.initializeTooltips(document);
+  tooltipHandler.initializeTooltips();
 });

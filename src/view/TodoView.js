@@ -1,7 +1,6 @@
 import { TodoItemFactory } from '../utils/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { DarkModeHandler } from '../utils/DarkModeHandler.js';
-import { TooltipHandler } from '../utils/TooltipHandler.js';
 import saveIcon from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
 
@@ -12,8 +11,6 @@ export class TodoView {
     this.model.addObserver(this);
     this.factory = new TodoItemFactory(model);
     this.darkModeHandler = new DarkModeHandler();
-    this.tooltipHandler = new TooltipHandler();
-
 
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
@@ -22,7 +19,6 @@ export class TodoView {
     this.setupEventListeners();
     this.setupSortable();
     this.update();
-    
   }
 
   // Setup event listeners for form submission and todo list interactions
@@ -120,11 +116,7 @@ export class TodoView {
         const todoItem = this.factory.createTodoItem(todo, index);
         this.todoList.appendChild(todoItem);
       });
-    } else {
-      console.log("Nie znaleziono listy lub bieżąca lista jest niezdefiniowana.");
     }
-
-    this.tooltipHandler.initializeTooltips(this.todoList);
   }
 
   // Update the UI
@@ -142,12 +134,10 @@ export class TodoView {
       currentList.name : 'No active list';
       this.content.style.display = 'flex';
       this.emptyPrompt.style.display = 'none';
-      console.log("111");
     } else {
       document.getElementById('current-list-name').textContent = 'No active list';
       this.content.style.display = 'none';
       this.emptyPrompt.style.display = 'flex';
-      console.log("222");
     }
   }
 }

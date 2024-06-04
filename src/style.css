@@ -92,10 +92,6 @@ body.dark #toggle-sidebar-btn:hover {
   background-color: var(--dark-primary-color);
 }
 
-#sidebar #toggle-sidebar-btn {
-  transform: rotate(180deg);
-}
-
 #sidebar-content {
   display: flex;
   flex-direction: column;
@@ -354,7 +350,6 @@ body.dark #new-list-input {
   margin-right: 0.25rem;
   transition: 0.3s;
   border: none;
-  /* color: inherit; */
   cursor: pointer;
   fill: var(--icon-color);
 }
@@ -625,7 +620,7 @@ body.dark .icon-container button:hover {
   opacity: 1 !important;
 }
 
-
+/* Tooltips */
 .tooltip {
   position: absolute;
   background-color: #333;
@@ -643,11 +638,9 @@ body.dark .icon-container button:hover {
   width: 0;
   height: 0;
   border-style: solid;
-  content: "";
+  border-width: 5px 5px 0 5px;
+  border-color: #333 transparent transparent transparent;
 }
-
-
-
 
 
 /* Media queries */
