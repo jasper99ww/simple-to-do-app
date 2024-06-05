@@ -21,7 +21,7 @@ export class TodoListPanelFactory {
     checkbox.type = 'checkbox';
     checkbox.checked = completed;
     checkbox.id = `list-checkbox-${listId}`;
-    checkbox.setAttribute('aria-label', `Mark list as ${completed ? 'incomplete' : 'complete'}`); // Adding aria-label
+    checkbox.setAttribute('aria-label', `Mark list as ${completed ? 'incomplete' : 'complete'}`);
     li.appendChild(checkbox);
 
     const labelForCheckbox = document.createElement('label');

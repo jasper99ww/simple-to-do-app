@@ -1,3 +1,5 @@
+import { UPDATE_TODO, UPDATE_LIST, ERROR_TODO, ERROR_LIST, ERROR_TEXT_EMPTY_TODO, ERROR_TEXT_EMPTY_LIST } from '../utils/eventTypes.js';
+
 export class TodoModel {
 
   constructor() {
@@ -8,17 +10,22 @@ export class TodoModel {
     this.observers = [];
   }
 
-  addObserver(observer) {
-    this.observers.push(observer);
+  addObserver(observer, events) {
+    this.observers.set(observer, new Set(events));
   }
 
-  notifyObservers() {
-    this.observers.forEach(observer => observer.update());
+  notifyObservers(eventType = 'update', data = null) {
+    this.observers.forEach(observer => observer.update(eventType, data));
+  }
+
+  persistData() {
+    localStorage.setItem("todoLists", JSON.stringify([...this.lists]));
+    this.notifyObservers();
   }
 
   addList(name) {
-    if (this.lists.has(name)) {
-      alert('Lista o tej nazwie już istnieje.');
+    if (this.listNames.has(name)) {
+      this.notifyObservers('error', 'A list with this name already exists');
       return;
     }
 
@@ -32,8 +39,30 @@ export class TodoModel {
     });
     this.listNames.add(name);
     this.currentListId = listId;
-    this.saveTodos();
-    this.notifyObservers();
+    this.persistData();
+  }
+
+  updateListName(listId, newName) {
+    if (!this.lists.has(listId)) {
+      this.notifyObservers('error', `List not found: ${listId}`);
+      return;
+    }
+  
+    if (newName.length === 0) {
+      this.notifyObservers('error-text-empty', listId);
+      return;
+    }
+  
+    if (this.listNames.has(newName)) {
+      this.notifyObservers('error', "A list with this name already exists.");
+      return;
+    }
+  
+    const listDetails = this.lists.get(listId);
+    this.listNames.delete(listDetails.name);
+    listDetails.name = newName;
+    this.listNames.add(newName);
+    this.persistData();
   }
 
   deleteList(listId) {
@@ -42,78 +71,9 @@ export class TodoModel {
       this.listNames.delete(list.name);
       this.lists.delete(listId);
       this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
-      this.saveTodos();
-      this.notifyObservers();
-    }
-  }
-
-  addTodo(todo) {
-    if (this.currentListId && this.lists.has(this.currentListId)) {
-      this.lists.get(this.currentListId).todos.push(todo);
-      this.saveTodos();
-      this.notifyObservers();
+      this.persistData();
     } else {
-      console.error("Nie można dodać zadania, brak aktywnej listy lub lista nie istnieje.");
-    }
-  }
-
-  updateTodoText(index, text) {
-    if (this.currentListId && this.lists.has(this.currentListId)) {
-      const todos = this.lists.get(this.currentListId).todos;
-
-      if (text.length === 0) {
-        alert("Todo item text cannot be empty. Reverting to previous text.");
-        if (index >= 0 && index < todos.length) {
-          const todoElement = document.querySelector(`[data-index='${index}'] .todo-text`);
-          todoElement.textContent = todos[index].text;
-          todoElement.blur();
-        }
-        return;
-      }
-
-      if (index >= 0 && index < todos.length) {
-        todos[index].text = text;
-        this.saveTodos();
-        this.notifyObservers();
-      } else {
-        console.error("Invalid index: " + index);
-      }
-    } else {
-      console.error("Current list ID is not set or does not exist in the lists map.");
-    }
-  }
-
-
-  updateListName(listId, newName) {
-    if (!this.lists.has(newName) && newName.length > 0) {
-      const listDetails = this.lists.get(listId);
-      this.listNames.delete(listDetails.name);
-      listDetails.name = newName;
-      this.listNames.add(newName);
-      this.saveTodos();
-      this.notifyObservers();
-    } else {
-      console.log("Nie można zmienić nazwy listy: Nowa nazwa jest pusta lub już istnieje.");
-    }
-  }
-
-  deleteTodoItem(index) {
-    if (this.currentListId && this.lists.has(this.currentListId)) {
-      const todos = this.lists.get(this.currentListId).todos;
-      if (index >= 0 && index < todos.length) {
-        todos.splice(index, 1);
-        this.saveTodos();
-        this.notifyObservers();
-      }
-    }
-  }
-
-  toggleTodoItemCompleted(index) {
-    const todos = this.lists.get(this.currentListId).todos;
-    if (index >= 0 && index < todos.length) {
-      todos[index].completed = !todos[index].completed;
-      this.saveTodos();
-      this.notifyObservers();
+      this.notifyObservers('error', "List not found: " + listId);
     }
   }
 
@@ -121,21 +81,18 @@ export class TodoModel {
     if (this.lists.has(listId)) {
       const list = this.lists.get(listId);
       list.completed = !list.completed;
-      this.saveTodos();
-      this.notifyObservers();
+      this.persistData();
     } else {
-      console.error("List not found: " + listId);
+      this.notifyObservers('error', "List not found: " + listId);
     }
-  }
-
-  saveTodos() {
-    localStorage.setItem("todoLists", JSON.stringify([...this.lists]));
   }
 
   changeList(newListId) {
     if (this.lists.has(newListId)) {
       this.currentListId = newListId;
-      this.notifyObservers();
+      this.persistData();
+    } else {
+      this.notifyObservers('error', "List not found: " + newListId);
     }
   }
 
@@ -148,8 +105,57 @@ export class TodoModel {
       }
     });
     this.lists = newList;
-    this.saveTodos();
-    this.notifyObservers();
+    this.persistData();
+  }
+
+  addTodo(todo) {
+    if (this.currentListId && this.lists.has(this.currentListId)) {
+      this.lists.get(this.currentListId).todos.push(todo);
+      this.persistData();
+    } else {
+      this.notifyObservers('error', "Cannot add task, no active list or list does not exist.");
+    }
+  }
+
+  updateTodoName(index, text) {
+    if (!this.currentListId || !this.lists.has(this.currentListId)) {
+      this.notifyObservers('error', "Current list ID is not set or does not exist.");
+      return;
+    }
+  
+    const todos = this.lists.get(this.currentListId).todos;
+    if (index < 0 || index >= todos.length) {
+      this.notifyObservers('error', "Invalid index: " + index);
+      return;
+    }
+  
+    if (text.length === 0) {
+      this.notifyObservers('error-text-empty', index);
+      return;
+    }
+  
+    todos[index].text = text;
+    this.persistData();
+  }
+
+  deleteTodoItem(index) {
+    if (this.currentListId && this.lists.has(this.currentListId)) {
+      const todos = this.lists.get(this.currentListId).todos;
+      if (index >= 0 && index < todos.length) {
+        todos.splice(index, 1);
+        this.persistData();
+      }
+    } else {
+      this.notifyObservers('error', "Current list ID is not set or does not exist.");
+    }
+  }
+
+  toggleTodoItemCompleted(index) {
+    const todos = this.lists.get(this.currentListId).todos;
+    if (index >= 0 && index < todos.length) {
+      todos[index].completed = !todos[index].completed;
+      this.persistData();
+    } 
   }
 
   reorderItems(listId, newOrder) {
@@ -165,13 +171,11 @@ export class TodoModel {
       });
 
       list.todos = reorderedTodos;
-      this.saveTodos();
-      this.notifyObservers();
+      this.persistData();
     }
   }
 
   generateId() {
     return crypto.randomUUID();
   }
-
 }

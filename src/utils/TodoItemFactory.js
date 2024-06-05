@@ -1,4 +1,3 @@
-// import { deleteIcon, doneIcon, editIcon, dragIcon } from './Icons.js';
 import deleteIcon from '../assets/icons/delete.svg';
 import doneIcon from '../assets/icons/done.svg';
 import editIcon from '../assets/icons/edit.svg';
@@ -22,7 +21,7 @@ export class TodoItemFactory {
     checkbox.type = 'checkbox';
     checkbox.id = `todo-checkbox-${index}`;
     checkbox.checked = todo.completed;
-    checkbox.setAttribute('aria-label', `Mark task as ${todo.completed ? 'incomplete' : 'complete'}`); // Adding aria-label
+    checkbox.setAttribute('aria-label', `Mark task as ${todo.completed ? 'incomplete' : 'complete'}`);
     li.appendChild(checkbox);
 
     const labelForCheckbox = document.createElement('label');
@@ -49,23 +48,23 @@ export class TodoItemFactory {
     li.appendChild(container);
   }
 
-  addEditButton(li) {
+  addEditButton(container) {
     const button = document.createElement('button');
     button.className = 'edit-btn';
     button.innerHTML = editIcon;
     button.setAttribute('aria-label', 'Edit todo');
     button.setAttribute('data-tooltip', 'Edit this task');
-    li.appendChild(button);
+    container.appendChild(button);
   }
 
-  addDeleteButton(li) {
+  addDeleteButton(container) {
     const button = document.createElement('button');
     button.className = 'delete-btn';
     button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete todo');
     button.setAttribute('data-tooltip', 'Delete this task');
    
-    li.appendChild(button);
+    container.appendChild(button);
   }
 
   addDragButton(container){

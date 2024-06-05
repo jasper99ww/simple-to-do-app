@@ -3,7 +3,8 @@ import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import saveIcon from '../assets/icons/save.svg';
-import { setCursorToEnd } from '../utils/SetCursorToEnd.js';
+import { setCursorToEnd } from '../utils/setCursorToEnd.js';
+import { showToast } from '../utils/toast.js';
 
 export class TodoListPanel {
 
@@ -14,21 +15,23 @@ export class TodoListPanel {
     this.sidebarHandler = new SidebarHandler();
     this.searchHandler = new SearchHandler(this.render.bind(this));
 
-    // Cache DOM elements
-    this.firstListForm = document.getElementById("first-list-form");
-    this.listForm = document.getElementById("list-form");
-    this.listContainer = document.getElementById("todo-lists-container");
-
+    this.cacheDomElements();
     this.setupEventListeners();
     this.setupSortable();
     this.render();
+  }
+
+  cacheDomElements() {
+    this.firstListForm = document.getElementById("first-list-form");
+    this.listForm = document.getElementById("list-form");
+    this.listContainer = document.getElementById("todo-lists-container");
   }
 
   // Setup event listeners for form submission and list container interactions
   setupEventListeners() {
     this.firstListForm.addEventListener('submit', this.handleCreateFirstList.bind(this));
     this.listForm.addEventListener('submit', this.handleCreateList.bind(this));
-    this.listContainer.addEventListener('click', this.handleListClick.bind(this));
+    this.listContainer.addEventListener('click', this.handleListActions.bind(this));
     this.listContainer.addEventListener('change', this.handleListChange.bind(this));
   }
 
@@ -45,7 +48,6 @@ export class TodoListPanel {
   updateModelOrder() {
     const newListOrder = Array.from(this.listContainer.children).map(item => item.dataset.listId);
     this.model.reorderLists(newListOrder);
-    this.model.notifyObservers();
   }
 
   // Handle creating the first list
@@ -53,7 +55,6 @@ export class TodoListPanel {
     e.preventDefault();
     const newListInput = document.getElementById("first-list-input");
     const newListName = newListInput.value.trim();
-    console.log('dodawanie pierwszej listy' + newListName)
     if (newListName.length > 0) {
       this.model.addList(newListName);
       newListInput.value = "";
@@ -65,69 +66,58 @@ export class TodoListPanel {
     e.preventDefault();
     const newListInput = document.getElementById("new-list-input");
     const newListName = newListInput.value.trim();
-
     if (newListName.length > 0) {
       this.model.addList(newListName);
       newListInput.value = "";
-      this.update();
     };
   }
 
   // Handle list-related actions (edit, delete, select)
-  handleListClick(e) {
-    if (this.handleEditButtonClick(e)) return;
-    if (this.handleDeleteButtonClick(e)) return;
-    this.handleListSelection(e);
-  }
+  handleListActions(e) {
+    const editButton = e.target.closest(".edit-list-btn");
+    const deleteButton = e.target.closest(".delete-list-btn");
+    const listItemLabel = e.target.closest(".todo-list-text");
+
+    if (editButton) {
+      this.editList(editButton);
+    } else if (deleteButton) {
+      this.deleteList(deleteButton);
+    } else if (listItemLabel) {
+      this.selectList(listItemLabel);
+    }
+}
 
   // Handle click on the edit button
-  handleEditButtonClick(e) {
-    const editButton = e.target.closest(".edit-list-btn");
-    if (editButton) {
-      const listItem = editButton.closest("li");
-      const listId = listItem.dataset.listId;
-      const label = listItem.querySelector('.todo-list-text');
-      label.contentEditable = "true";
-      setCursorToEnd(label);
-      editButton.innerHTML = saveIcon;
+  editList(button) {
+    const listItem = button.closest("li");
+    const listId = listItem.dataset.listId;
+    const label = listItem.querySelector('.todo-list-text');
+    label.contentEditable = "true";
+    setCursorToEnd(label);
+    button.innerHTML = saveIcon;
 
-      label.addEventListener('click', event => {
-        event.preventDefault();
-        event.stopPropagation();
-      });
+    label.addEventListener('click', event => event.preventDefault());
 
-      label.onblur = () => {
-        label.contentEditable = "false";
-        const newListName = label.textContent.trim();
-        this.model.updateListName(listId, newListName);
-      };
-      return true;
-    }
-    return false;
+    label.onblur = () => {
+      label.contentEditable = "false";
+      const newListName = label.textContent.trim();
+      this.model.updateListName(listId, newListName);
+    };
   }
 
    // Handle click on the delete button
-   handleDeleteButtonClick(e) {
-    const deleteButton = e.target.closest(".delete-list-btn");
-    if (deleteButton) {
-      const listItem = deleteButton.closest("li");
-      const listId = listItem.dataset.listId;
-      this.model.deleteList(listId);
-      return true;
-    }
-    return false;
+  deleteList(button) {
+    const listItem = button.closest("li");
+    const listId = listItem.dataset.listId;
+    this.model.deleteList(listId);
   }
 
   // Handle list selection
-  handleListSelection(e) {
-    const listItemLabel = e.target.closest(".todo-list-text");
-    if (listItemLabel) {
-      const listItem = listItemLabel.closest("li");
-      const listId = listItem.dataset.listId;
-      this.model.changeList(listId);
-      this.update();
-    }
-  }
+  selectList(listItemLabel) {
+    const listItem = listItemLabel.closest("li");
+    const listId = listItem.dataset.listId;
+    this.model.changeList(listId);
+}
 
   // Handle change events for list items
   handleListChange(e) {
@@ -155,7 +145,32 @@ export class TodoListPanel {
   }
 
   // Update the UI
-  update() {
-    this.render();
+  update(eventType, data) {
+    console.log("DOSTANO UPDATE - TodoListPanel")
+
+    switch (eventType) {
+      case 'update':
+        this.render();
+        break;
+      case 'error':
+        showToast(data, 'error');
+      case 'error-text-empty':
+        this.restoreListName(data);
+        showToast("List name cannot be empty.", "error");
+        break;
+      default:
+        this.render();
+        break;
+    }
+  }
+
+    restoreListName(listId) {
+      console.log('list id isss ', listId);
+      const listElement = document.querySelector(`[data-list-id='${listId}'] .todo-list-text`);
+      console.log("list name is ", listElement);
+      if (listElement && this.model.lists.has(listId)) {
+        const list = this.model.lists.get(listId);
+        listElement.textContent = list.name;  // Restore previous name
+      }
   }
 }
