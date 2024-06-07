@@ -1,4 +1,5 @@
-import { UPDATE_TODO, UPDATE_LIST, ERROR_TODO, ERROR_LIST, ERROR_TEXT_EMPTY_TODO, ERROR_TEXT_EMPTY_LIST } from '../utils/eventTypes.js';
+import { EventTypes } from '../utils/eventTypes.js';
+import { ERROR_MESSAGES } from '../utils/errorMessages.js';
 
 export class TodoModel {
 
@@ -7,30 +8,48 @@ export class TodoModel {
     this.lists = new Map(storedLists ? JSON.parse(storedLists) : []);
     this.listNames = new Set(Array.from(this.lists.values()).map(list => list.name));
     this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
-    this.observers = [];
+    this.observers = new Map();
   }
 
   addObserver(observer, events) {
     this.observers.set(observer, new Set(events));
   }
 
-  notifyObservers(eventType = 'update', data = null) {
-    this.observers.forEach(observer => observer.update(eventType, data));
+  notifyObservers(event) {
+    this.observers.forEach((events, observer) => {
+        if (events.has(event.eventType)) {
+            observer.update(event);
+        }
+    });
   }
 
   persistData() {
     localStorage.setItem("todoLists", JSON.stringify([...this.lists]));
-    this.notifyObservers();
+    this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
+    this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+  }
+
+  checkListsExistence() {
+    const eventType = this.lists.size === 0 ? EventTypes.LISTS_EMPTY : EventTypes.LISTS_EXIST;
+    this.notifyObservers({ eventType: eventType });
   }
 
   addList(name) {
     if (this.listNames.has(name)) {
-      this.notifyObservers('error', 'A list with this name already exists');
+      this.notifyObservers({
+        eventType: EventTypes.ERROR_LIST,
+        message: ERROR_MESSAGES.LIST_EXISTS });
+      return;
+    }
+
+    if(!name) {
+      this.notifyObservers({
+        eventType: EventTypes.ERROR_LIST,
+        message: ERROR_MESSAGES.LIST_TEXT_EMPTY });
       return;
     }
 
     const listId = this.generateId();
-
     this.lists.set(listId, {
       id: listId,
       name: name,
@@ -40,60 +59,72 @@ export class TodoModel {
     this.listNames.add(name);
     this.currentListId = listId;
     this.persistData();
+    this.checkListsExistence();
+  }
+
+  generateId() {
+    return crypto.randomUUID();
+  }
+
+  validateNewListName(listId, listName) {
+    if (!this.lists.has(listId)) {
+      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND };
+    } 
+    else if (listName.length === 0) {
+      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_TEXT_EMPTY };
+    } 
+    else if (this.listNames.has(listName)) {
+      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_EXISTS };
+    }
+    return null;
   }
 
   updateListName(listId, newName) {
-    if (!this.lists.has(listId)) {
-      this.notifyObservers('error', `List not found: ${listId}`);
-      return;
+
+    const error = this.validateNewListName(listId, newName);
+    if (error) {
+      this.notifyObservers(error);
+      this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+      return
     }
-  
-    if (newName.length === 0) {
-      this.notifyObservers('error-text-empty', listId);
-      return;
-    }
-  
-    if (this.listNames.has(newName)) {
-      this.notifyObservers('error', "A list with this name already exists.");
-      return;
-    }
-  
-    const listDetails = this.lists.get(listId);
-    this.listNames.delete(listDetails.name);
-    listDetails.name = newName;
+
+    const list = this.lists.get(listId);
+    this.listNames.delete(list.name);
+    list.name = newName;
     this.listNames.add(newName);
     this.persistData();
   }
 
   deleteList(listId) {
     if (this.lists.has(listId)) {
-      const list = this.lists.get(listId);
-      this.listNames.delete(list.name);
-      this.lists.delete(listId);
-      this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
-      this.persistData();
+        const list = this.lists.get(listId);
+        this.listNames.delete(list.name);
+        this.lists.delete(listId);
+        this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
+        this.persistData();
+        this.checkListsExistence();
     } else {
-      this.notifyObservers('error', "List not found: " + listId);
+      this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
     }
   }
 
   toggleTodoListCompleted(listId) {
-    if (this.lists.has(listId)) {
-      const list = this.lists.get(listId);
-      list.completed = !list.completed;
-      this.persistData();
-    } else {
-      this.notifyObservers('error', "List not found: " + listId);
-    }
+      if (this.lists.has(listId)) {
+          const list = this.lists.get(listId);
+          list.completed = !list.completed;
+          this.persistData();
+      } else {
+        this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
+      }
   }
 
   changeList(newListId) {
-    if (this.lists.has(newListId)) {
-      this.currentListId = newListId;
-      this.persistData();
-    } else {
-      this.notifyObservers('error', "List not found: " + newListId);
-    }
+      if (this.lists.has(newListId)) {
+          this.currentListId = newListId;
+          this.persistData();
+      } else {
+        this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
+      }
   }
 
   reorderLists(newOrder) {
@@ -109,31 +140,48 @@ export class TodoModel {
   }
 
   addTodo(todo) {
-    if (this.currentListId && this.lists.has(this.currentListId)) {
-      this.lists.get(this.currentListId).todos.push(todo);
-      this.persistData();
-    } else {
-      this.notifyObservers('error', "Cannot add task, no active list or list does not exist.");
+    if (!this.currentListId || !this.lists.has(this.currentListId)) {
+      this.notifyObservers({
+          eventType: EventTypes.ERROR_TODO,
+          message: ERROR_MESSAGES.TODO_NOT_FOUND
+      });
+      return;
     }
+
+    if (!todo) {
+        this.notifyObservers({
+            eventType: EventTypes.ERROR_TODO,
+            message: ERROR_MESSAGES.TODO_TEXT_EMPTY
+        });
+        return;
+    }
+
+    this.lists.get(this.currentListId).todos.push(todo);
+    this.persistData();
   }
 
+  validateTodoText(index, newText) {
+
+    if (!this.lists.has(this.currentListId) || index < 0 || index >= this.lists.get(this.currentListId).todos.length) {
+        return { eventType: EventTypes.ERROR_TODO, message: ERROR_MESSAGES.TODO_NOT_FOUND };
+    }
+
+    if (newText.trim().length === 0) {
+        return { eventType: EventTypes.ERROR_TODO, message: ERROR_MESSAGES.TODO_TEXT_EMPTY };
+    }
+    
+    return null;
+}
+
   updateTodoName(index, text) {
-    if (!this.currentListId || !this.lists.has(this.currentListId)) {
-      this.notifyObservers('error', "Current list ID is not set or does not exist.");
-      return;
+    const error = this.validateTodoText(index, text);
+    if (error) {
+        this.notifyObservers(error);
+        this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
+        return;
     }
-  
+
     const todos = this.lists.get(this.currentListId).todos;
-    if (index < 0 || index >= todos.length) {
-      this.notifyObservers('error', "Invalid index: " + index);
-      return;
-    }
-  
-    if (text.length === 0) {
-      this.notifyObservers('error-text-empty', index);
-      return;
-    }
-  
     todos[index].text = text;
     this.persistData();
   }
@@ -146,7 +194,7 @@ export class TodoModel {
         this.persistData();
       }
     } else {
-      this.notifyObservers('error', "Current list ID is not set or does not exist.");
+      this.notifyObservers(EventDefinitions.ERROR_TODO);
     }
   }
 
@@ -158,9 +206,13 @@ export class TodoModel {
     } 
   }
 
-  reorderItems(listId, newOrder) {
-    if (this.lists.has(listId)) {
-      const list = this.lists.get(listId);
+  getTodos() {
+    return this.lists.get(this.currentListId)?.todos || [];
+  }
+
+  reorderItems(newOrder) {
+    if (this.lists.has(this.currentListId)) {
+      const list = this.lists.get(this.currentListId);
       const reorderedTodos = [];
 
       newOrder.forEach(index => {
@@ -173,9 +225,5 @@ export class TodoModel {
       list.todos = reorderedTodos;
       this.persistData();
     }
-  }
-
-  generateId() {
-    return crypto.randomUUID();
   }
 }

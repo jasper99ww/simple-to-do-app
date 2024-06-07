@@ -1,29 +1,34 @@
+import { EventTypes } from '../utils/eventTypes.js'; 
 import { TodoItemFactory } from '../utils/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { DarkModeHandler } from '../utils/DarkModeHandler.js';
 import saveIcon from '../assets/icons/save.svg';
 import { setCursorToEnd } from '../utils/setCursorToEnd.js';
 import { showToast } from '../utils/toast.js';
+import { ToastTypes } from '../utils/toastTypes.js';
 
 export class TodoView {
 
   constructor(model) {
     this.model = model;
-    this.model.addObserver(this);
+    this.model.addObserver(this, [
+      EventTypes.UPDATE_TODO,
+      EventTypes.ERROR_TODO
+    ]);
     this.factory = new TodoItemFactory(model);
     this.darkModeHandler = new DarkModeHandler();
 
     this.cacheDomElements();
     this.setupEventListeners();
     this.setupSortable();
-    this.update('update');
+    this.render();
   }
 
   cacheDomElements() {
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
-    this.content = document.querySelector(".todo-container");
-    this.emptyPrompt = document.querySelector(".prompt-container");
+    // this.content = document.querySelector(".todo-container");
+    // this.emptyPrompt = document.querySelector(".prompt-container");
   }
 
   // Setup event listeners for form submission and todo list interactions
@@ -45,20 +50,19 @@ export class TodoView {
   // Update the model order after drag-and-drop operation
   updateItemOrder() {
     const newOrder = Array.from(this.todoList.children).map(item => item.dataset.index);
-    this.model.reorderItems(this.model.currentListId, newOrder);
+    this.model.reorderItems(newOrder);
   }
 
   // Handle creating a new todo item
   handleAddTodo(e) {
     e.preventDefault();
+    const todoInput = this.todoInputForm.querySelector('input');
     const todoText = this.todoInputForm.querySelector('input').value.trim();
-    if (todoText.length > 0) {
-      this.model.addTodo({
+    this.model.addTodo({
         text: todoText,
         completed: false
-      });
-      this.todoInputForm.querySelector('input').value = "";
-    }
+    });
+    todoInput.value = "";
   }
 
   // Handle todo-related actions (edit, delete)
@@ -108,54 +112,52 @@ export class TodoView {
   // Render the todo list
   render() {
     this.todoList.innerHTML = '';
-    const todos = this.model.lists.get(this.model.currentListId)?.todos || [];
+    const todos = this.model.getTodos();
     todos.forEach((todo, index) => this.todoList.appendChild(this.factory.createTodoItem(todo, index)));
   }
 
   // Update the UI
-  update(eventType, data) {
-
-    console.log("DOSTANO UPDATE - TodoView")
-    switch (eventType) {
-      case 'update':
+  update(event) {
+    console.log("DOSTANO UPDATE - TodoView");
+    switch (event.eventType) {
+      case EventTypes.UPDATE_TODO:
         this.render();
-        this.updateViewBasedOnCurrentList();
         break;
-      case 'error':
-        showToast(data, 'error');
-        break;
-      case 'error-text-empty':
-        this.restoreTodoText(data);
-        showToast("Todo name cannot be empty.", "error");
+      case EventTypes.ERROR_TODO:
+        showToast(event.message, ToastTypes.ERROR);
         break;
       default:
         this.render();
         break;
     }
-}
-
-  // Restore previous todo text if the new text is empty 
-  restoreTodoText(index) {
-    const todoElement = document.querySelector(`[data-index='${index}'] .todo-text`);
-    if (todoElement && this.model.lists.has(this.model.currentListId)) {
-        const todo = this.model.lists.get(this.model.currentListId).todos[index];
-        todoElement.textContent = todo.text;  // Restore previous text
-    }
   }
 
-  updateViewBasedOnCurrentList() {
-    const currentListId = this.model.currentListId;
-    if (currentListId) {
-      const currentList = this.model.lists.get(currentListId);
-      document.getElementById('current-list-name').textContent = currentList ? 
-      currentList.name : 'No active list';
-      this.content.style.display = 'flex';
-      this.emptyPrompt.style.display = 'none';
-    } else {
-      document.getElementById('current-list-name').textContent = 'No active list';
-      this.content.style.display = 'none';
-      this.emptyPrompt.style.display = 'flex';
-    }
-  }
+  // showEmptyListState() {
+  //   document.getElementById('current-list-name').textContent = 'No active list';
+  //   this.content.style.display = 'none';
+  //   this.emptyPrompt.style.display = 'flex';
+  // }
+
+  // showListState() {
+  //   const currentList = this.model.lists.get(this.model.currentListId);
+  //   document.getElementById('current-list-name').textContent = currentList ? currentList.name : 'No current list name';
+  //   this.content.style.display = 'flex';
+  //   this.emptyPrompt.style.display = 'none';
+  // }
+
+  // updateViewBasedOnCurrentList() {
+  //   const currentListId = this.model.currentListId;
+  //   if (currentListId) {
+  //     const currentList = this.model.lists.get(currentListId);
+  //     document.getElementById('current-list-name').textContent = currentList ? 
+  //     currentList.name : 'No active list';
+  //     this.content.style.display = 'flex';
+  //     this.emptyPrompt.style.display = 'none';
+  //   } else {
+  //     document.getElementById('current-list-name').textContent = 'No active list';
+  //     this.content.style.display = 'none';
+  //     this.emptyPrompt.style.display = 'flex';
+  //   }
+  // }
 }
 
