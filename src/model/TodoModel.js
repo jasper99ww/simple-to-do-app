@@ -1,14 +1,52 @@
+import { TodoService } from '../service/TodoService.js';
+import { ListService } from '../service/ListService.js';
+import { CurrentListState } from '../service/CurrentListState.js';
 import { EventTypes } from '../utils/eventTypes.js';
-import { ERROR_MESSAGES } from '../utils/errorMessages.js';
 
 export class TodoModel {
 
   constructor() {
-    const storedLists = localStorage.getItem("todoLists");
-    this.lists = new Map(storedLists ? JSON.parse(storedLists) : []);
-    this.listNames = new Set(Array.from(this.lists.values()).map(list => list.name));
-    this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
+    this.lists = new Map();
+    this.listNames = new Set();
     this.observers = new Map();
+    this._currentListId = null;
+    this.loadInitialData();
+
+    this.listService = new ListService({
+      getCurrentListId: this.getCurrentListId.bind(this),
+      setCurrentListId: this.setCurrentListId.bind(this),
+      lists: this.lists,
+      listNames: this.listNames
+    });
+
+    this.todoService = new TodoService({
+      getCurrentListId: this.getCurrentListId.bind(this),
+      lists: this.lists,
+    });
+  }
+
+  loadInitialData() {
+    const storedLists = localStorage.getItem("todoLists");
+    const savedCurrentListId = localStorage.getItem('currentListId');
+    if (storedLists) {
+      const parsedLists = JSON.parse(storedLists);
+      this.lists = new Map(parsedLists);
+      this.listNames = new Set(parsedLists.map(list => list.name));
+      if (this.lists.size > 0) {
+        const firstListId = this.lists.keys().next().value;
+        this.setCurrentListId(firstListId);
+        // this.currentListState.setCurrentListId(firstListId);
+      }
+    }
+  }
+
+  getCurrentListId() {
+    return this._currentListId;
+  }
+
+  setCurrentListId(listId) {
+      this._currentListId = listId;
+      localStorage.setItem('currentListId', listId);
   }
 
   addObserver(observer, events) {
@@ -23,207 +61,137 @@ export class TodoModel {
     });
   }
 
-  persistData() {
+  setLocalStorage() {
     localStorage.setItem("todoLists", JSON.stringify([...this.lists]));
+  }
+
+  persistData() {
+    this.setLocalStorage();
     this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
   }
 
+  /* ListService methods */
+
   checkListsExistence() {
-    const eventType = this.lists.size === 0 ? EventTypes.LISTS_EMPTY : EventTypes.LISTS_EXIST;
-    this.notifyObservers({ eventType: eventType });
+    const result = this.listService.checkListsExistence();
+    if (result.success) {
+        this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
+    } else {
+        this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
+    }
   }
 
   addList(name) {
-    if (this.listNames.has(name)) {
-      this.notifyObservers({
-        eventType: EventTypes.ERROR_LIST,
-        message: ERROR_MESSAGES.LIST_EXISTS });
-      return;
+    const result = this.listService.addList(name);
+    if (result.success) {
+        this.persistData();
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
     }
-
-    if(!name) {
-      this.notifyObservers({
-        eventType: EventTypes.ERROR_LIST,
-        message: ERROR_MESSAGES.LIST_TEXT_EMPTY });
-      return;
-    }
-
-    const listId = this.generateId();
-    this.lists.set(listId, {
-      id: listId,
-      name: name,
-      todos: [],
-      completed: false
-    });
-    this.listNames.add(name);
-    this.currentListId = listId;
-    this.persistData();
-    this.checkListsExistence();
-  }
-
-  generateId() {
-    return crypto.randomUUID();
-  }
-
-  validateNewListName(listId, listName) {
-    if (!this.lists.has(listId)) {
-      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND };
-    } 
-    else if (listName.length === 0) {
-      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_TEXT_EMPTY };
-    } 
-    else if (this.listNames.has(listName)) {
-      return { eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_EXISTS };
-    }
-    return null;
   }
 
   updateListName(listId, newName) {
-
-    const error = this.validateNewListName(listId, newName);
-    if (error) {
-      this.notifyObservers(error);
+    const result = this.listService.updateListName(listId, newName);
+    if(result.success){
+      this.setLocalStorage();
       this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
-      return
+    } else {
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
-
-    const list = this.lists.get(listId);
-    this.listNames.delete(list.name);
-    list.name = newName;
-    this.listNames.add(newName);
-    this.persistData();
   }
 
   deleteList(listId) {
-    if (this.lists.has(listId)) {
-        const list = this.lists.get(listId);
-        this.listNames.delete(list.name);
-        this.lists.delete(listId);
-        this.currentListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
+    const result = this.listService.deleteList(listId);
+    if (result.success) {
         this.persistData();
-        this.checkListsExistence();
     } else {
-      this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
+        this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   toggleTodoListCompleted(listId) {
-      if (this.lists.has(listId)) {
-          const list = this.lists.get(listId);
-          list.completed = !list.completed;
-          this.persistData();
-      } else {
-        this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
-      }
+    const result = this.listService.toggleTodoListCompleted(listId);
+    if (result.success) {
+        this.setLocalStorage();
+        this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
+    }
   }
 
-  changeList(newListId) {
-      if (this.lists.has(newListId)) {
-          this.currentListId = newListId;
-          this.persistData();
-      } else {
-        this.notifyObservers({ eventType: EventTypes.ERROR_LIST, message: ERROR_MESSAGES.LIST_NOT_FOUND });
-      }
+  changeCurrentList(newListId) {
+    const result = this.listService.changeCurrentList(newListId);
+    if (result.success) {
+      this.persistData();
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
+    }
   }
 
   reorderLists(newOrder) {
-    const newList = new Map();
-    newOrder.forEach(listId => {
-      const list = this.lists.get(listId);
-      if (list) {
-        newList.set(listId, list);
-      }
-    });
-    this.lists = newList;
-    this.persistData();
+    const result = this.listService.reorderLists(newOrder);
+    if (result.success) {
+        this.setLocalStorage();
+        this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
+    }
+  }
+
+  /* TodoService methods */
+
+  getTodos() {
+    return this.todoService.getTodos(this.getCurrentListId());
   }
 
   addTodo(todo) {
-    if (!this.currentListId || !this.lists.has(this.currentListId)) {
-      this.notifyObservers({
-          eventType: EventTypes.ERROR_TODO,
-          message: ERROR_MESSAGES.TODO_NOT_FOUND
-      });
-      return;
+    const result = this.todoService.addTodo(todo);
+    if (result.success) {
+        this.persistData();
+        this.notifyObservers({ eventType: EventTypes.UPDATE_TODO, message: result.message });
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
     }
-
-    if (!todo) {
-        this.notifyObservers({
-            eventType: EventTypes.ERROR_TODO,
-            message: ERROR_MESSAGES.TODO_TEXT_EMPTY
-        });
-        return;
-    }
-
-    this.lists.get(this.currentListId).todos.push(todo);
-    this.persistData();
   }
 
-  validateTodoText(index, newText) {
-
-    if (!this.lists.has(this.currentListId) || index < 0 || index >= this.lists.get(this.currentListId).todos.length) {
-        return { eventType: EventTypes.ERROR_TODO, message: ERROR_MESSAGES.TODO_NOT_FOUND };
-    }
-
-    if (newText.trim().length === 0) {
-        return { eventType: EventTypes.ERROR_TODO, message: ERROR_MESSAGES.TODO_TEXT_EMPTY };
-    }
-    
-    return null;
-}
-
   updateTodoName(index, text) {
-    const error = this.validateTodoText(index, text);
-    if (error) {
-        this.notifyObservers(error);
-        this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
-        return;
+    const result = this.todoService.updateTodoName(index, text);
+    if(result.success){
+      this.setLocalStorage();
+      this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
+    } else {
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
-
-    const todos = this.lists.get(this.currentListId).todos;
-    todos[index].text = text;
-    this.persistData();
   }
 
   deleteTodoItem(index) {
-    if (this.currentListId && this.lists.has(this.currentListId)) {
-      const todos = this.lists.get(this.currentListId).todos;
-      if (index >= 0 && index < todos.length) {
-        todos.splice(index, 1);
-        this.persistData();
-      }
+    const result = this.todoService.deleteTodoItem(index);
+    if(result.success){
+      this.setLocalStorage();
+      this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     } else {
-      this.notifyObservers(EventDefinitions.ERROR_TODO);
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   toggleTodoItemCompleted(index) {
-    const todos = this.lists.get(this.currentListId).todos;
-    if (index >= 0 && index < todos.length) {
-      todos[index].completed = !todos[index].completed;
-      this.persistData();
-    } 
-  }
-
-  getTodos() {
-    return this.lists.get(this.currentListId)?.todos || [];
+    const result = this.todoService.toggleTodoItemCompleted(index);
+    if(result.success){
+      this.setLocalStorage();
+      this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
+    } else {
+      this.notifyObservers({ eventType: result.error, message: result.message });
+    }
   }
 
   reorderItems(newOrder) {
-    if (this.lists.has(this.currentListId)) {
-      const list = this.lists.get(this.currentListId);
-      const reorderedTodos = [];
-
-      newOrder.forEach(index => {
-        const todo = list.todos[parseInt(index, 10)];
-        if (todo) {
-          reorderedTodos.push(todo);
-        }
-      });
-
-      list.todos = reorderedTodos;
-      this.persistData();
+    const result = this.todoService.reorderItems(newOrder);
+    if(result.success){
+      this.setLocalStorage();
+      this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
+    } else {
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 }

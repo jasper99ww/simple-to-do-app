@@ -27,8 +27,6 @@ export class TodoView {
   cacheDomElements() {
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
-    // this.content = document.querySelector(".todo-container");
-    // this.emptyPrompt = document.querySelector(".prompt-container");
   }
 
   // Setup event listeners for form submission and todo list interactions
@@ -132,32 +130,5 @@ export class TodoView {
     }
   }
 
-  // showEmptyListState() {
-  //   document.getElementById('current-list-name').textContent = 'No active list';
-  //   this.content.style.display = 'none';
-  //   this.emptyPrompt.style.display = 'flex';
-  // }
-
-  // showListState() {
-  //   const currentList = this.model.lists.get(this.model.currentListId);
-  //   document.getElementById('current-list-name').textContent = currentList ? currentList.name : 'No current list name';
-  //   this.content.style.display = 'flex';
-  //   this.emptyPrompt.style.display = 'none';
-  // }
-
-  // updateViewBasedOnCurrentList() {
-  //   const currentListId = this.model.currentListId;
-  //   if (currentListId) {
-  //     const currentList = this.model.lists.get(currentListId);
-  //     document.getElementById('current-list-name').textContent = currentList ? 
-  //     currentList.name : 'No active list';
-  //     this.content.style.display = 'flex';
-  //     this.emptyPrompt.style.display = 'none';
-  //   } else {
-  //     document.getElementById('current-list-name').textContent = 'No active list';
-  //     this.content.style.display = 'none';
-  //     this.emptyPrompt.style.display = 'flex';
-  //   }
-  // }
 }
 

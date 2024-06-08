@@ -108,7 +108,7 @@ export class TodoListPanel {
   selectList(listItemLabel) {
     const listItem = listItemLabel.closest("li");
     const listId = listItem.dataset.listId;
-    this.model.changeList(listId);
+    this.model.changeCurrentList(listId);
 }
 
   // Handle change events for list items
@@ -128,7 +128,7 @@ export class TodoListPanel {
       if (list.name.toLowerCase().includes(query)) {
         const listItem = this.factory.createTodoListPanel(list, id);
         listItem.dataset.listId = id;
-        if (id === this.model.currentListId) {
+        if (id === this.model.getCurrentListId()) {
           listItem.classList.add('active');
         }
         this.listContainer.appendChild(listItem);
@@ -138,8 +138,6 @@ export class TodoListPanel {
 
   // Update the UI
   update(event) {
-    console.log("DOSTANO UPDATE - TodoListPanel")
-
     switch (event.eventType) {
       case EventTypes.UPDATE_LIST:
         this.render();

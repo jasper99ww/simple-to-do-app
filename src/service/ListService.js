@@ -1,95 +1,100 @@
 import { ModelValidator } from '../model/ModelValidator.js';
-import { EventTypes } from '../utils/eventTypes.js';
 
 export class ListService {
-    constructor({ notifyObservers, persistData, currentListState, lists, listNames }) {
-        this.notifyObservers = notifyObservers;
-        this.persistData = persistData;
-        this.currentListState = currentListState;
+      constructor({ getCurrentListId, setCurrentListId, lists, listNames }) {
+        this.getCurrentListId = getCurrentListId;
+        this.setCurrentListId = setCurrentListId;
         this.lists = lists;
         this.listNames = listNames;
     }
 
     addList(name) {
-      ModelValidator.validateListName(this.listNames, name, this.notifyObservers, () => {
-            const listId = this.generateId();
-            this.lists.set(listId, {
-                id: listId,
-                name: name,
-                todos: [],
-                completed: false
-            });
-            this.listNames.add(name);
-            this.currentListState.setCurrentListId(listId);
-            this.persistData();
-            this.checkListsExistence();
+      const validation = ModelValidator.validateListName(this.listNames, name);
+        if (!validation.isValid) {
+            return { success: false, error: validation.error, message: validation.message };
         }
-      );
+        const listId = crypto.randomUUID();
+        this.lists.set(listId, {
+            id: listId,
+            name: name,
+            todos: [],
+            completed: false
+        });
+        this.listNames.add(name);
+        this.setCurrentListId(listId);
+        return { success: true, listId: listId };
     }
   
     generateId() {
       return crypto.randomUUID();
     }
 
-    
     deleteList(listId) {
-      ModelValidator.validateListExists(this.lists, listId, this.notifyObservers, () => {
-        const list = this.lists.get(this.currentListId);
+      const validation = ModelValidator.validateListExists(this.lists, listId);
+        if (!validation.isValid) {
+            return { success: false, error: validation.error, message: validation.message };
+        }
+        const list = this.lists.get(listId);
         this.listNames.delete(list.name);
         this.lists.delete(listId);
-        this.currentListState.setCurrentListId(this.lists.size > 0 ? this.lists.keys().next().value : null);
-        this.persistData();
-        this.checkListsExistence();
-      });
+        this.setCurrentListId(this.lists.size > 0 ? this.lists.keys().next().value : null);
+        return { success: true };
     }
   
     updateListName(listId, newName) {
-      ModelValidator.validateUpdatedListName(
-        this.lists,
-        this.listNames,
-        listId,
-        newName,
-        this.notifyObservers,
-        () => {
-            const list = this.lists.get(listId);
-            this.listNames.delete(list.name);
-            list.name = newName;
-            this.listNames.add(newName);
-            this.persistData();
+      const validation = ModelValidator.validateUpdatedListName(this.lists, this.listNames, listId, newName);
+        if (!validation.isValid) {
+            return { success: false, error: validation.error, message: validation.message };
         }
-      );
+        const list = this.lists.get(listId);
+        this.listNames.delete(list.name);
+        list.name = newName;
+        this.listNames.add(newName);
+        return { success: true };
     }
   
     toggleTodoListCompleted(listId) {
-      ModelValidator.validateListExists(this.lists, listId, this.notifyObservers, () => {
-        const list = this.lists.get(this.currentListId);
+      const validation = ModelValidator.validateListExists(this.lists, listId);
+        if (!validation.isValid) {
+            return { success: false, error: validation.error, message: validation.message };
+        }
+        const list = this.lists.get(listId);
         list.completed = !list.completed;
-        this.persistData();
-      });
+        return { success: true };
     }
   
-    changeList(newListId) {
-      ModelValidator.validateListExists(this.lists, newListId, this.notifyObservers, () => {
-        const list = this.lists.get(this.currentListId);
-        this.currentListState.setCurrentListId(newListId);
-        this.persistData();
-      });
+    changeCurrentList(newListId) {
+      const validation = ModelValidator.validateListExists(this.lists, newListId);
+      if (!validation.isValid) {
+          return { success: false, error: validation.error, message: validation.message };
+      }
+      this.setCurrentListId(newListId);
+      return { success: true };
     }
   
     reorderLists(newOrder) {
       const newList = new Map();
-      newOrder.forEach(listId => {
-        const list = this.lists.get(listId);
-        if (list) {
-          newList.set(listId, list);
-        }
-      });
-      this.lists = newList;
-      this.persistData();
+        newOrder.forEach(listId => {
+            const list = this.lists.get(listId);
+            if (list) {
+                newList.set(listId, list);
+            }
+        });
+
+        this.lists.clear();
+        newList.forEach((list, listId) => {
+            this.lists.set(listId, list);
+        });
+        
+        return { success: true };
     }
 
     checkListsExistence() {
-      const eventType = this.lists.size === 0 ? EventTypes.LISTS_EMPTY : EventTypes.LISTS_EXIST;
-      this.notifyObservers({ eventType: eventType });
+      const eventType = this.lists.size
+      if (eventType === 0) {
+        return { success: false }
+      } else {
+        return { success: true }
+      }
   }
 }
