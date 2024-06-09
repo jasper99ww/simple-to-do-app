@@ -1,42 +1,32 @@
-import { TodoService } from '../service/TodoService.js';
-import { ListService } from '../service/ListService.js';
-import { CurrentListState } from '../service/CurrentListState.js';
 import { EventTypes } from '../utils/eventTypes.js';
 
 export class TodoModel {
 
-  constructor() {
-    this.lists = new Map();
-    this.listNames = new Set();
-    this.observers = new Map();
-    this._currentListId = null;
+  constructor(listService, todoService, lists) {
+    this.listService = listService;
+    this.todoService = todoService;
+    this.lists = lists;
+    this._currentListId = null; 
+    this.observers = new Map(); 
     this.loadInitialData();
-
-    this.listService = new ListService({
-      getCurrentListId: this.getCurrentListId.bind(this),
-      setCurrentListId: this.setCurrentListId.bind(this),
-      lists: this.lists,
-      listNames: this.listNames
-    });
-
-    this.todoService = new TodoService({
-      getCurrentListId: this.getCurrentListId.bind(this),
-      lists: this.lists,
-    });
-  }
+    this.checkListsExistence();
+}
 
   loadInitialData() {
     const storedLists = localStorage.getItem("todoLists");
-    const savedCurrentListId = localStorage.getItem('currentListId');
     if (storedLists) {
       const parsedLists = JSON.parse(storedLists);
-      this.lists = new Map(parsedLists);
-      this.listNames = new Set(parsedLists.map(list => list.name));
-      if (this.lists.size > 0) {
+      parsedLists.forEach(([key, value]) => {
+        this.lists.set(key, value);
+      });
+    }
+
+    const savedCurrentListId = localStorage.getItem("currentListId");
+    if (savedCurrentListId && this.lists.has(savedCurrentListId)) {
+        this.setCurrentListId(savedCurrentListId);
+    } else if (this.lists.size > 0) {
         const firstListId = this.lists.keys().next().value;
         this.setCurrentListId(firstListId);
-        // this.currentListState.setCurrentListId(firstListId);
-      }
     }
   }
 
@@ -45,8 +35,11 @@ export class TodoModel {
   }
 
   setCurrentListId(listId) {
+    if (this._currentListId !== listId) {
       this._currentListId = listId;
-      localStorage.setItem('currentListId', listId);
+      localStorage.setItem("currentListId", listId);
+      this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
+    }
   }
 
   addObserver(observer, events) {
@@ -85,7 +78,9 @@ export class TodoModel {
   addList(name) {
     const result = this.listService.addList(name);
     if (result.success) {
+        this.setCurrentListId(result.listId);
         this.persistData();
+        this.checkListsExistence();
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
     }
@@ -104,7 +99,9 @@ export class TodoModel {
   deleteList(listId) {
     const result = this.listService.deleteList(listId);
     if (result.success) {
+        this.setCurrentListId(result.listId);
         this.persistData();
+        this.checkListsExistence();
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
     }
@@ -121,8 +118,10 @@ export class TodoModel {
   }
 
   changeCurrentList(newListId) {
+    console.log("BUBM BUM i size to " + this.lists.size)
     const result = this.listService.changeCurrentList(newListId);
     if (result.success) {
+      this.setCurrentListId(result.newListId);
       this.persistData();
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
@@ -146,7 +145,7 @@ export class TodoModel {
   }
 
   addTodo(todo) {
-    const result = this.todoService.addTodo(todo);
+    const result = this.todoService.addTodo(todo, this.getCurrentListId());
     if (result.success) {
         this.persistData();
         this.notifyObservers({ eventType: EventTypes.UPDATE_TODO, message: result.message });
@@ -156,7 +155,7 @@ export class TodoModel {
   }
 
   updateTodoName(index, text) {
-    const result = this.todoService.updateTodoName(index, text);
+    const result = this.todoService.updateTodoName(index, text, this.getCurrentListId());
     if(result.success){
       this.setLocalStorage();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
@@ -166,7 +165,7 @@ export class TodoModel {
   }
 
   deleteTodoItem(index) {
-    const result = this.todoService.deleteTodoItem(index);
+    const result = this.todoService.deleteTodoItem(index, this.getCurrentListId());
     if(result.success){
       this.setLocalStorage();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
@@ -176,7 +175,7 @@ export class TodoModel {
   }
 
   toggleTodoItemCompleted(index) {
-    const result = this.todoService.toggleTodoItemCompleted(index);
+    const result = this.todoService.toggleTodoItemCompleted(index, this.getCurrentListId());
     if(result.success){
       this.setLocalStorage();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
@@ -186,7 +185,7 @@ export class TodoModel {
   }
 
   reorderItems(newOrder) {
-    const result = this.todoService.reorderItems(newOrder);
+    const result = this.todoService.reorderItems(newOrder, this.getCurrentListId());
     if(result.success){
       this.setLocalStorage();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });

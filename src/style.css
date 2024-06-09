@@ -760,5 +760,13 @@ body.dark .icon-container button:hover {
     pointer-events: none;
     z-index: 1001;
   }
+
+  #add-todo-btn {
+    position: static;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    height: auto;
+  }
 }
 

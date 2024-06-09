@@ -13,20 +13,28 @@ export class TodoView {
     this.model = model;
     this.model.addObserver(this, [
       EventTypes.UPDATE_TODO,
-      EventTypes.ERROR_TODO
+      EventTypes.ERROR_TODO,
+      EventTypes.LISTS_EMPTY,
+      EventTypes.LISTS_EXIST,
+      EventTypes.LIST_CHANGED 
     ]);
     this.factory = new TodoItemFactory(model);
     this.darkModeHandler = new DarkModeHandler();
+    this.contentVisibilityState = null;
 
     this.cacheDomElements();
     this.setupEventListeners();
     this.setupSortable();
     this.render();
+    this.model.checkListsExistence();
   }
 
   cacheDomElements() {
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
+    this.content = document.querySelector(".todo-container");
+    this.emptyPrompt = document.querySelector(".prompt-container");
+    this.currentListNameDisplay = document.getElementById("current-list-name");
   }
 
   // Setup event listeners for form submission and todo list interactions
@@ -124,10 +132,44 @@ export class TodoView {
       case EventTypes.ERROR_TODO:
         showToast(event.message, ToastTypes.ERROR);
         break;
+      case EventTypes.LISTS_EMPTY:
+        if (this.contentVisibilityState !== "empty") {
+          this.showEmptyContenttate();
+          this.contentVisibilityState = "empty";
+        }
+        
+        break;
+      case EventTypes.LISTS_EXIST:
+        if (this.contentVisibilityState !== "exist") {
+          this.showContentState()
+          this.contentVisibilityState = "exist";
+        }
+        break;
+      case EventTypes.LIST_CHANGED:
+        this.updateListName();
+        break;
       default:
         this.render();
         break;
     }
+  }
+
+  showEmptyContenttate() {
+    this.currentListNameDisplay.textContent = "No active list";
+    this.content.style.display = "none";
+    this.emptyPrompt.style.display = "flex";
+  }
+
+  showContentState() {
+    this.content.style.display = "flex";
+    this.emptyPrompt.style.display = "none";
+    this.updateListName();
+  }
+
+  updateListName() {
+    const currentListId = this.model.getCurrentListId();
+    const currentList = this.model.lists.get(currentListId);
+    this.currentListNameDisplay.textContent = currentList ? currentList.name : "No current list name";
   }
 
 }

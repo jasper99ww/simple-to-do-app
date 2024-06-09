@@ -1,11 +1,9 @@
 import { ModelValidator } from '../model/ModelValidator.js';
 
 export class ListService {
-      constructor({ getCurrentListId, setCurrentListId, lists, listNames }) {
-        this.getCurrentListId = getCurrentListId;
-        this.setCurrentListId = setCurrentListId;
+      constructor(lists) {
         this.lists = lists;
-        this.listNames = listNames;
+        this.listNames = new Set([...lists.values()].map(list => list.name));
     }
 
     addList(name) {
@@ -21,7 +19,6 @@ export class ListService {
             completed: false
         });
         this.listNames.add(name);
-        this.setCurrentListId(listId);
         return { success: true, listId: listId };
     }
   
@@ -37,8 +34,8 @@ export class ListService {
         const list = this.lists.get(listId);
         this.listNames.delete(list.name);
         this.lists.delete(listId);
-        this.setCurrentListId(this.lists.size > 0 ? this.lists.keys().next().value : null);
-        return { success: true };
+        const nextListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
+        return { success: true, nextListId: nextListId };
     }
   
     updateListName(listId, newName) {
@@ -68,8 +65,7 @@ export class ListService {
       if (!validation.isValid) {
           return { success: false, error: validation.error, message: validation.message };
       }
-      this.setCurrentListId(newListId);
-      return { success: true };
+      return { success: true, newListId: newListId };
     }
   
     reorderLists(newOrder) {
@@ -85,7 +81,7 @@ export class ListService {
         newList.forEach((list, listId) => {
             this.lists.set(listId, list);
         });
-        
+
         return { success: true };
     }
 
