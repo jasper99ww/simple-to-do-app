@@ -4,6 +4,26 @@ export class ListService {
       constructor(lists) {
         this.lists = lists;
         this.listNames = new Set([...lists.values()].map(list => list.name));
+        this.firstLoad = true;
+    }
+
+    getLists(query = '') {
+      const filteredLists = [];
+      this.lists.forEach((list) => {
+        if (list.name.toLowerCase().includes(query)) {
+          filteredLists.push(list);
+        }
+      });
+
+      return filteredLists;
+    }
+
+    getList(listId) {
+      const validation = ModelValidator.validateListExists(this.lists, listId);
+      if (!validation.isValid) {
+          return { success: false, error: validation.error, message: validation.message };
+      }
+      return { success: true, list: this.lists.get(listId) };
     }
 
     addList(name) {
@@ -31,11 +51,20 @@ export class ListService {
         if (!validation.isValid) {
             return { success: false, error: validation.error, message: validation.message };
         }
+
+        let previousKey = null;
+        let currentKey = null;
+        for (let key of this.lists.keys()) {
+            if (key === listId) {
+                break;
+            }
+            previousKey = key;
+        }
+
         const list = this.lists.get(listId);
         this.listNames.delete(list.name);
-        this.lists.delete(listId);
-        const nextListId = this.lists.size > 0 ? this.lists.keys().next().value : null;
-        return { success: true, nextListId: nextListId };
+        this.lists.delete(listId);    
+        return { success: true, previousListId: previousKey };
     }
   
     updateListName(listId, newName) {
@@ -86,11 +115,26 @@ export class ListService {
     }
 
     checkListsExistence() {
-      const eventType = this.lists.size
-      if (eventType === 0) {
-        return { success: false }
+      const listSize = this.lists.size
+
+      // Always update css styles for list message on first load
+      if (this.firstLoad) {
+        this.firstLoad = false;
+        return { success: listSize > 0, updateUI: true };
+      }
+
+      /* If listSize is equal to 0 then show empty lists message;
+         If listSize is equal to 1 then show list;
+         If listSize is greater than 1, don't update css styles, because it was update previously; */
+      if (listSize === 0) {
+        console.log("1.1")
+      return { success: false, updateUI: true };
+      } else if (listSize === 1) {
+        console.log("1.2")
+          return { success: true, updateUI: true };
       } else {
-        return { success: true }
+        console.log("1.3")
+          return { success: true, updateUI: false };
       }
   }
 }

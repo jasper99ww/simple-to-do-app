@@ -9,7 +9,6 @@ export class TodoModel {
     this._currentListId = null; 
     this.observers = new Map(); 
     this.loadInitialData();
-    this.checkListsExistence();
 }
 
   loadInitialData() {
@@ -30,14 +29,28 @@ export class TodoModel {
     }
   }
 
+  
+  getLists(query = '') {
+    return this.listService.getLists(query);
+  }
+
   getCurrentListId() {
     return this._currentListId;
   }
 
+  getCurrentList() {
+    const result = this.listService.getList(this.getCurrentListId());
+    if (result.success) {
+        return result.list;
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
+    }
+  }
+
   setCurrentListId(listId) {
     if (this._currentListId !== listId) {
+      console.log("34343")
       this._currentListId = listId;
-      localStorage.setItem("currentListId", listId);
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
     }
   }
@@ -67,11 +80,13 @@ export class TodoModel {
   /* ListService methods */
 
   checkListsExistence() {
-    const result = this.listService.checkListsExistence();
-    if (result.success) {
-        this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
-    } else {
-        this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
+    const { success, updateUI } = this.listService.checkListsExistence();
+    if (updateUI) {
+        if (success) {
+            this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
+        } else {
+            this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
+        }
     }
   }
 
@@ -99,7 +114,12 @@ export class TodoModel {
   deleteList(listId) {
     const result = this.listService.deleteList(listId);
     if (result.success) {
-        this.setCurrentListId(result.listId);
+      // Update list id if the current list is deleted
+      if (result.previousListId) {
+          this.setCurrentListId(result.previousListId);
+      } else {
+          // this.setCurrentListId(null);
+      }
         this.persistData();
         this.checkListsExistence();
     } else {
@@ -118,7 +138,6 @@ export class TodoModel {
   }
 
   changeCurrentList(newListId) {
-    console.log("BUBM BUM i size to " + this.lists.size)
     const result = this.listService.changeCurrentList(newListId);
     if (result.success) {
       this.setCurrentListId(result.newListId);
@@ -141,7 +160,7 @@ export class TodoModel {
   /* TodoService methods */
 
   getTodos() {
-    return this.todoService.getTodos(this.getCurrentListId());
+    return this.lists.get(this._currentListId)?.todos || [];
   }
 
   addTodo(todo) {

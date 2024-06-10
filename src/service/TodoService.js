@@ -47,6 +47,7 @@ export class TodoService {
   }
 
   getTodos(listId) {
+    console.log("todosy to get", this.lists.get(listId)?.todos)
     return this.lists.get(listId)?.todos || [];
   }
 

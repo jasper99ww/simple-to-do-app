@@ -1,5 +1,5 @@
 import { EventTypes } from '../utils/eventTypes.js'; 
-import { TodoListPanelFactory } from '../utils/TodoListPanelFactory.js';
+import { TodoListPanelFactory } from '../factory/TodoListPanelFactory.js';
 import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
@@ -10,15 +10,13 @@ import { ToastTypes } from '../utils/toastTypes.js';
 
 export class TodoListPanel {
 
-  constructor(model) {
-    this.model = model;
-    this.model.addObserver(this, [
-      EventTypes.UPDATE_LIST,
-      EventTypes.ERROR_LIST
-    ]);
-    this.factory = new TodoListPanelFactory(this.model);
+  constructor(controller) {
+    this.controller = controller;
+    this.controller.addObserver(this);
+    this.factory = new TodoListPanelFactory();
     this.sidebarHandler = new SidebarHandler();
     this.searchHandler = new SearchHandler(this.render.bind(this));
+    this.activeListItem = null;
 
     this.cacheDomElements();
     this.setupEventListeners();
@@ -34,11 +32,27 @@ export class TodoListPanel {
 
   // Setup event listeners for form submission and list container interactions
   setupEventListeners() {
-    this.firstListForm.addEventListener('submit', e => this.handleCreateList(e, "first-list-input"));
-    this.listForm.addEventListener('submit', e => this.handleCreateList(e, "new-list-input"));
+    this.firstListForm.addEventListener('submit', e => this.handleAddList(e, "first-list-input"));
+    this.listForm.addEventListener('submit', e => this.handleAddList(e, "new-list-input"));
     this.listContainer.addEventListener('click', e => this.handleListActions(e));
     this.listContainer.addEventListener('change', e => this.handleListChange(e));
   }
+
+  update(event) {
+    switch (event.eventType) {
+        case EventTypes.UPDATE_LIST:
+          console.log("UPDATE LITS")
+          this.render();
+          break;
+        case EventTypes.LIST_CHANGED:
+          this.setActiveList();
+          break;
+        case EventTypes.ERROR_LIST:
+          this.displayError(event.message);
+          break;
+    }
+}
+
 
   // Setup sortable feature for list items
   setupSortable() {
@@ -52,15 +66,15 @@ export class TodoListPanel {
   // Update the model order after drag-and-drop operation
   updateModelOrder() {
     const newListOrder = Array.from(this.listContainer.children).map(item => item.dataset.listId);
-    this.model.reorderLists(newListOrder);
+    this.controller.reorderLists(newListOrder);
   }
 
   // Handle creating a list
-  handleCreateList(e, inputId) {
+  handleAddList(e, inputId) {
     e.preventDefault();
     const newListInput = document.getElementById(inputId);
     const newListName = newListInput.value.trim();
-    this.model.addList(newListName);
+    this.controller.addList(newListName);
     newListInput.value = "";
   }
 
@@ -93,7 +107,7 @@ export class TodoListPanel {
     label.onblur = () => {
       label.contentEditable = "false";
       const newListName = label.textContent.trim();
-      this.model.updateListName(listId, newListName);
+      this.controller.updateListName(listId, newListName);
     };
   }
 
@@ -101,14 +115,15 @@ export class TodoListPanel {
   deleteList(button) {
     const listItem = button.closest("li");
     const listId = listItem.dataset.listId;
-    this.model.deleteList(listId);
+    this.controller.deleteList(listId);
   }
 
   // Handle list selection
   selectList(listItemLabel) {
     const listItem = listItemLabel.closest("li");
     const listId = listItem.dataset.listId;
-    this.model.changeCurrentList(listId);
+    console.log("list id is " + listId)
+    this.controller.changeCurrentList(listId);
 }
 
   // Handle change events for list items
@@ -116,38 +131,41 @@ export class TodoListPanel {
     if (e.target.type === "checkbox") {
       const listItem = e.target.closest('li');
       const listId = listItem.dataset.listId;
-      this.model.toggleTodoListCompleted(listId);
+      this.controller.toggleListCompletion(listId);
     }
   }
 
   // Render the list panel filtered by search query
   render(query = '') {
     this.listContainer.innerHTML = '';
+    const lists = this.controller.getLists();
 
-    this.model.lists.forEach((list, id) => {
-      if (list.name.toLowerCase().includes(query)) {
-        const listItem = this.factory.createTodoListPanel(list, id);
-        listItem.dataset.listId = id;
-        if (id === this.model.getCurrentListId()) {
+    lists.forEach( (list) => {
+        const listItem = this.factory.createTodoListPanel(list, list.id);
+        if (list.id === this.controller.getCurrentListId()) {
           listItem.classList.add('active');
         }
         this.listContainer.appendChild(listItem);
-      }
     });
   }
 
-  // Update the UI
-  update(event) {
-    switch (event.eventType) {
-      case EventTypes.UPDATE_LIST:
-        this.render();
-        break;
-      case EventTypes.ERROR_LIST:
-        showToast(event.message, ToastTypes.ERROR);
-        break;
-      default:
-        this.render();
-        break;
+  setActiveList(){
+    const currentListId = this.controller.getCurrentListId();
+    const currentItem = this.listContainer.querySelector(`[data-list-id="${currentListId}"]`);
+
+    // Usuwanie klasy active tylko, jeśli aktywny element się zmienia
+    if (this.activeListItem && this.activeListItem !== currentItem) {
+        this.activeListItem.classList.remove('active');
     }
+
+    // Ustawianie nowego aktywnego elementu
+    if (currentItem) {
+        currentItem.classList.add('active');
+        this.activeListItem = currentItem; // Zaktualizowanie referencji do nowego aktywnego elementu
+    }
+  }
+
+  displayError(message) {
+    showToast(message, ToastTypes.ERROR);
   }
 }

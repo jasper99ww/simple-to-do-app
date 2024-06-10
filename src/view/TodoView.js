@@ -1,5 +1,5 @@
 import { EventTypes } from '../utils/eventTypes.js'; 
-import { TodoItemFactory } from '../utils/TodoItemFactory.js';
+import { TodoItemFactory } from '../factory/TodoItemFactory.js';
 import { SortableHandler } from '../utils/SortableHandler.js';
 import { DarkModeHandler } from '../utils/DarkModeHandler.js';
 import saveIcon from '../assets/icons/save.svg';
@@ -9,24 +9,18 @@ import { ToastTypes } from '../utils/toastTypes.js';
 
 export class TodoView {
 
-  constructor(model) {
-    this.model = model;
-    this.model.addObserver(this, [
-      EventTypes.UPDATE_TODO,
-      EventTypes.ERROR_TODO,
-      EventTypes.LISTS_EMPTY,
-      EventTypes.LISTS_EXIST,
-      EventTypes.LIST_CHANGED 
-    ]);
-    this.factory = new TodoItemFactory(model);
+  constructor(controller) {
+    this.controller = controller;
+    this.controller.addObserver(this);
+    this.factory = new TodoItemFactory();
     this.darkModeHandler = new DarkModeHandler();
-    this.contentVisibilityState = null;
 
     this.cacheDomElements();
     this.setupEventListeners();
     this.setupSortable();
+    this.controller.checkListsExistence();
+    // this.updateCurrentListName();
     this.render();
-    this.model.checkListsExistence();
   }
 
   cacheDomElements() {
@@ -44,6 +38,26 @@ export class TodoView {
       this.todoList.addEventListener('change', e => this.handleTodoCompletionToggle(e));
   }
 
+  update(event) {
+    switch (event.eventType) {
+      case EventTypes.UPDATE_TODO:
+        this.render();
+        break;
+      case EventTypes.LISTS_EMPTY:
+        this.displayNoLists(); 
+        break;
+      case EventTypes.LISTS_EXIST:
+          this.displayListsExist();
+          break;
+      case EventTypes.LIST_CHANGED:
+          this.updateCurrentListName();
+          break;
+      case EventTypes.ERROR_TODO:
+         this.displayError(event.message);
+         break;
+    }
+  }
+
   // Setup sortable feature for todo items
   setupSortable() {
     this.sortableHandler = new SortableHandler(
@@ -56,7 +70,7 @@ export class TodoView {
   // Update the model order after drag-and-drop operation
   updateItemOrder() {
     const newOrder = Array.from(this.todoList.children).map(item => item.dataset.index);
-    this.model.reorderItems(newOrder);
+    this.controller.reorderItems(newOrder);
   }
 
   // Handle creating a new todo item
@@ -64,7 +78,7 @@ export class TodoView {
     e.preventDefault();
     const todoInput = this.todoInputForm.querySelector('input');
     const todoText = this.todoInputForm.querySelector('input').value.trim();
-    this.model.addTodo({
+    this.controller.addTodo({
         text: todoText,
         completed: false
     });
@@ -96,14 +110,14 @@ export class TodoView {
       label.onblur = () => {
         label.contentEditable = "false";
         const newText = label.textContent.trim();
-        this.model.updateTodoName(index, newText);
+        this.controller.updateTodoName(index, newText);
       };
   }
 
   deleteTodoItem(button) {
     const todoItem = button.closest('li');
     const index = parseInt(todoItem.dataset.index, 10);
-    this.model.deleteTodoItem(index);
+    this.controller.deleteTodoItem(index);
   }
 
   // Handle changing the completed status of a todo item
@@ -111,65 +125,35 @@ export class TodoView {
     if (e.target.type === "checkbox") {
       const todoItem = e.target.closest('li');
       const index = parseInt(todoItem.dataset.index, 10);
-      this.model.toggleTodoItemCompleted(index);
+      this.controller.toggleTodoItemCompleted(index);
     }
   }
 
   // Render the todo list
   render() {
     this.todoList.innerHTML = '';
-    const todos = this.model.getTodos();
+    const todos = this.controller.getTodos();
+    console.log("TODOS ARE ", todos)
     todos.forEach((todo, index) => this.todoList.appendChild(this.factory.createTodoItem(todo, index)));
   }
 
-  // Update the UI
-  update(event) {
-    console.log("DOSTANO UPDATE - TodoView");
-    switch (event.eventType) {
-      case EventTypes.UPDATE_TODO:
-        this.render();
-        break;
-      case EventTypes.ERROR_TODO:
-        showToast(event.message, ToastTypes.ERROR);
-        break;
-      case EventTypes.LISTS_EMPTY:
-        if (this.contentVisibilityState !== "empty") {
-          this.showEmptyContenttate();
-          this.contentVisibilityState = "empty";
-        }
-        
-        break;
-      case EventTypes.LISTS_EXIST:
-        if (this.contentVisibilityState !== "exist") {
-          this.showContentState()
-          this.contentVisibilityState = "exist";
-        }
-        break;
-      case EventTypes.LIST_CHANGED:
-        this.updateListName();
-        break;
-      default:
-        this.render();
-        break;
-    }
+  displayNoLists() {
+    this.emptyPrompt.style.display = 'flex';
+    this.content.style.display = 'none';
   }
 
-  showEmptyContenttate() {
-    this.currentListNameDisplay.textContent = "No active list";
-    this.content.style.display = "none";
-    this.emptyPrompt.style.display = "flex";
+  displayListsExist() {
+    this.emptyPrompt.style.display = 'none';
+    this.content.style.display = 'flex';
   }
 
-  showContentState() {
-    this.content.style.display = "flex";
-    this.emptyPrompt.style.display = "none";
-    this.updateListName();
-  }
-
-  updateListName() {
-    const currentListId = this.model.getCurrentListId();
-    const currentList = this.model.lists.get(currentListId);
+  updateCurrentListName() {
+    const currentList = this.controller.getCurrentList();
     this.currentListNameDisplay.textContent = currentList ? currentList.name : "No current list name";
+  }
+
+  displayError(message) {
+    showToast(message, ToastTypes.ERROR);
   }
 
 }
