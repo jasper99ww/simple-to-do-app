@@ -29,7 +29,6 @@ export class TodoModel {
     }
   }
 
-  
   getLists(query = '') {
     return this.listService.getLists(query);
   }
@@ -45,6 +44,14 @@ export class TodoModel {
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
     }
+  }
+
+  getCurrentListName() {
+    const result = this.listService.getList(this.getCurrentListId());
+    const listName = result.list.name;
+    // console.log("list is " + list.name)
+
+    return listName
   }
 
   setCurrentListId(listId) {

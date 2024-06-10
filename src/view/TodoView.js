@@ -19,7 +19,7 @@ export class TodoView {
     this.setupEventListeners();
     this.setupSortable();
     this.controller.checkListsExistence();
-    // this.updateCurrentListName();
+    this.updateCurrentListName();
     this.render();
   }
 
@@ -133,7 +133,6 @@ export class TodoView {
   render() {
     this.todoList.innerHTML = '';
     const todos = this.controller.getTodos();
-    console.log("TODOS ARE ", todos)
     todos.forEach((todo, index) => this.todoList.appendChild(this.factory.createTodoItem(todo, index)));
   }
 
@@ -148,8 +147,9 @@ export class TodoView {
   }
 
   updateCurrentListName() {
-    const currentList = this.controller.getCurrentList();
-    this.currentListNameDisplay.textContent = currentList ? currentList.name : "No current list name";
+    console.log("update current list name")
+    const currentListName = this.controller.getCurrentListName();
+    this.currentListNameDisplay.textContent = currentListName ? currentListName : "No current list name";
   }
 
   displayError(message) {

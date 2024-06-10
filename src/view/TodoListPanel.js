@@ -138,8 +138,7 @@ export class TodoListPanel {
   // Render the list panel filtered by search query
   render(query = '') {
     this.listContainer.innerHTML = '';
-    const lists = this.controller.getLists();
-
+    const lists = this.controller.getLists(query);
     lists.forEach( (list) => {
         const listItem = this.factory.createTodoListPanel(list, list.id);
         if (list.id === this.controller.getCurrentListId()) {
@@ -153,15 +152,13 @@ export class TodoListPanel {
     const currentListId = this.controller.getCurrentListId();
     const currentItem = this.listContainer.querySelector(`[data-list-id="${currentListId}"]`);
 
-    // Usuwanie klasy active tylko, jeśli aktywny element się zmienia
     if (this.activeListItem && this.activeListItem !== currentItem) {
         this.activeListItem.classList.remove('active');
     }
 
-    // Ustawianie nowego aktywnego elementu
     if (currentItem) {
         currentItem.classList.add('active');
-        this.activeListItem = currentItem; // Zaktualizowanie referencji do nowego aktywnego elementu
+        this.activeListItem = currentItem; 
     }
   }
 

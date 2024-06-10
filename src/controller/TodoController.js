@@ -6,6 +6,10 @@ export class TodoController {
     this.model = model;
   }
 
+  getListCount() {
+    return this.model.getLists().length;
+  }
+
   checkListsExistence() {
     this.model.checkListsExistence();
   }
@@ -44,7 +48,11 @@ export class TodoController {
     this.model.reorderItems(newOrder);
   }
 
-  getCurrentList() {
-    return this.model.getCurrentList();
+  getCurrentListName() {
+    return this.model.getCurrentListName();
   }
+  // getCurrentList() {
+  //   console.log("kontroler wezwany")
+  //   return this.model.getCurrentList();
+  // }
 }
