@@ -49,14 +49,12 @@ export class TodoModel {
   getCurrentListName() {
     const result = this.listService.getList(this.getCurrentListId());
     const listName = result.list.name;
-    // console.log("list is " + list.name)
 
     return listName
   }
 
   setCurrentListId(listId) {
     if (this._currentListId !== listId) {
-      console.log("34343")
       this._currentListId = listId;
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
     }

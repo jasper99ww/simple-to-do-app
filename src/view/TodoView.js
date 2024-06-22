@@ -147,7 +147,6 @@ export class TodoView {
   }
 
   updateCurrentListName() {
-    console.log("update current list name")
     const currentListName = this.controller.getCurrentListName();
     this.currentListNameDisplay.textContent = currentListName ? currentListName : "No current list name";
   }

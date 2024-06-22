@@ -17,6 +17,7 @@ export class TodoListPanel {
     this.sidebarHandler = new SidebarHandler();
     this.searchHandler = new SearchHandler(this.render.bind(this));
     this.activeListItem = null;
+    this.currentQuery = '';
 
     this.cacheDomElements();
     this.setupEventListeners();
@@ -136,7 +137,8 @@ export class TodoListPanel {
   }
 
   // Render the list panel filtered by search query
-  render(query = '') {
+  render(query = this.currentQuery) {
+    this.currentQuery = query;
     this.listContainer.innerHTML = '';
     const lists = this.controller.getLists(query);
     lists.forEach( (list) => {

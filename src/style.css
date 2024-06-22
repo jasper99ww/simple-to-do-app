@@ -80,6 +80,11 @@ body.dark #sidebar {
   fill: var(--icon-color);
 }
 
+svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
 body.dark #toggle-sidebar-btn {
   fill: var(--dark-secondary-color);
 }
@@ -571,11 +576,11 @@ input[type="checkbox"] {
   transition: 0.3s ease-in-out;
 }
 
-.icon-container svg,
+/* .icon-container svg,
 .custom-checkbox svg {
   width: 1.5rem;
   height: 1.5rem;
-}
+} */
 
 
 body.dark .icon-container button {
