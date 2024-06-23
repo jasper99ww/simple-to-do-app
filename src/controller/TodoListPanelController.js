@@ -39,6 +39,7 @@ export class TodoListPanelController {
   }
 
   getLists(query = '') {
+    console.log("X1")
       return this.model.getLists(query);
   }
 

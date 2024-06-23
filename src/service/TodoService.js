@@ -1,68 +1,62 @@
 import { ModelValidator } from '../model/ModelValidator.js';
 
 export class TodoService {
-  constructor(lists) {
-      this.lists = lists;
+  constructor(storageService) {
+    this.storageService = storageService;
+  }
+
+  getTodos(currentListId) {
+    return this.storageService.getList(currentListId).todos || [];
   }
 
   addTodo(todo, listId) {
-    const validation = ModelValidator.validateAddTodo(this.lists, listId, todo);
+    const lists = this.storageService.getLists();
+    const validation = ModelValidator.validateAddTodo(lists, listId, todo);
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    const todos = this.getTodos(listId);
-    todos.push(todo);
+    this.storageService.addTodo(todo, listId);
     return { success: true };
   }
 
-  updateTodoName(index, text, listId) {
-    const validation = ModelValidator.validateTodoText(this.lists, listId, index, text);
+  updateTodoName(todoIndex, listId, text) {
+    const lists = this.storageService.getLists();
+    const validation = ModelValidator.validateTodoText(lists, listId, todoIndex, text);
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
     
-    const todos = this.getTodos(listId);
-    todos[index].text = text;
+    this.storageService.updateTodoName(todoIndex, listId, text);
     return { success: true };
   }
 
   deleteTodoItem(todoId, listId) {
-    const validation = ModelValidator.validateDeleteTodo(this.lists, listId, todoId);
+    const lists = this.storageService.getLists();
+    const validation = ModelValidator.validateDeleteTodo(lists, listId, todoId);
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    const todos = this.getTodos(listId);
-    todos.splice(todoId, 1);
+    this.storageService.deleteTodoItem(todoId, listId);
     return { success: true };
   }
 
   toggleTodoItemCompleted(todoId, listId) {
-    const validation = ModelValidator.validateTodoIndex(this.lists, listId, todoId);
+    const lists = this.storageService.getLists();
+    const validation = ModelValidator.validateTodoIndex(lists, listId, todoId);
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    const todos = this.getTodos(listId);
-    todos[todoId].completed = !todos[todoId].completed;
+    this.storageService.toggleTodoCompleted(todoId, listId);
     return { success: true };
   }
 
-  getTodos(listId) {
-    console.log("todosy to get", this.lists.get(listId)?.todos)
-    return this.lists.get(listId)?.todos || [];
-  }
-
   reorderItems(newOrder, listId) {
-    const validation = ModelValidator.validateListExists(this.lists, listId);
+    const lists = this.storageService.getLists();
+    const validation = ModelValidator.validateListExists(lists, listId);
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    const list = this.lists.get(listId);
-    const todosCopy = [...list.todos];
-
-    newOrder.forEach((todoIndex, position) => {
-        list.todos[position] = todosCopy[todoIndex];
-    });
-
+    this.storageService.reorderTodos(listId, newOrder);
     return { success: true };
   }
 
