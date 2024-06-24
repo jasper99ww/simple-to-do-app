@@ -26,7 +26,11 @@ export class TodoModel {
 
  /* List methods */
   getLists(query = '') {
-    return this.listService.getLists(query);
+    const aa = this.listService.getLists(query);
+    aa.forEach((list) => {
+      console.log(" W MODELLU NAZWA TO ", list.name)
+    });
+    return aa;
   }
 
   getCurrentListId() {
@@ -35,6 +39,7 @@ export class TodoModel {
 
   setCurrentListId(listId) {
     if (this._currentListId !== listId) {
+      console.log("WILL SET CURRENT LIST ID " + listId)
       this._currentListId = listId;
       this.listService.saveCurrentListId(listId);
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
@@ -118,9 +123,9 @@ export class TodoModel {
   }
 
   changeCurrentList(newListId) {
-    const result = this.listService.changeCurrentList(newListId);
+    const result = this.listService.getList(newListId);
     if (result.success) {
-      this.setCurrentListId(result.newListId);
+      this.setCurrentListId(newListId);
       this.notifyUpdateListAndTodos();
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
@@ -139,9 +144,7 @@ export class TodoModel {
   /* TodoService methods */
 
   getTodos() {
-    const xx = this.todoService.getTodos(this.getCurrentListId());
-    console.log("XX is ", xx);
-    return xx;
+    return this.todoService.getTodos(this.getCurrentListId());
   }
 
   addTodo(todo) {

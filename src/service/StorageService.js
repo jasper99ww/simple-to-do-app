@@ -20,23 +20,33 @@ export class StorageService {
     return localStorage.getItem("currentListId");
   }
 
-  saveCurrentListId(listId) {
-    localStorage.setItem("currentListId", listId);
+  getCurrentListId() {
+    return this.currentListId;
   }
 
-  saveLists() {
-    localStorage.setItem("todoLists", JSON.stringify([...this.lists]));
+  removeCurrentListId() {
+    localStorage.removeItem("currentListId");
+    this.currentListId = null;
+  }
+
+  saveCurrentListId(listId) {
+    localStorage.setItem("currentListId", listId);
+    this.currentListId = listId;
+  }
+
+  saveLists(newLists = this.lists) {
+    localStorage.setItem("todoLists", JSON.stringify([...newLists]));
+    this.lists = newLists;
   }
 
   // LIST methods
 
   getLists() {
-    return this.lists;
+    return new Map(this.lists);
   }
 
   getList(listId) {
-    console.log("XXCZ")
-    return this.lists.get(listId);
+    return {...this.lists.get(listId)}
   }
 
   getListNames() {
@@ -44,56 +54,48 @@ export class StorageService {
   }
 
   addList(list) {
-    this.lists.set(list.id, list);
-    this.saveLists();
-  }
-
-  deleteList(listId) {
-    this.lists.delete(listId);
+    const newListMap = new Map(this.lists);
+    newListMap.set(list.id, list);
+    this.lists = newListMap;
     this.saveLists();
   }
 
   updateList(listId, list) {
-    this.lists.set(listId, list);
+    const updatedLists = new Map(this.lists);
+    updatedLists.set(listId, {...list});
+    this.lists = updatedLists;
+    this.saveLists();
+  }
+
+  deleteList(listId) {
+    const updatedLists = new Map(this.lists);
+    updatedLists.delete(listId);
+    this.lists = updatedLists;
     this.saveLists();
   }
 
   // TODO methods
 
   getTodos(listId) {
-    return this.lists.get(listId)?.todos || [];
+    const list = this.getList(listId);
+    return list ? [...list.todos] : [];
   }
 
   addTodo(listId, todo) {
-    const todos = this.getTodos(listId);
-    todos.push(todo);
-    this.saveLists();
+    const todos = [...this.getTodos(listId), todo];
+    const updatedList = { ...this.getList(listId), todos };
+    this.updateList(listId, updatedList);
   }
 
-  updateTodoName(todoIndex, listId, text) {
-    const todos = this.getTodos(listId);
-    todos[todoIndex].text = text;
-    this.saveLists();
+  updateTodo(listId, todoIndex, updatedTodo) {
+    const list = this.getList(listId);
+    list.todos[todoIndex] = updatedTodo;
+    this.updateList(listId, list);
   }
 
   deleteTodo(listId, todoId) {
-    const todos = this.getTodos(listId);
-    todos.splice(todoId, 1);
-    this.saveLists();
-  }
-
-  toggleTodoCompleted(listId, todoId) {
-    const todos = this.getTodos(listId);
-    todos[todoId].completed = !todos[todoId].completed;
-    this.saveLists();
-  }
-
-  reorderTodos(listId, newOrder) {
-    const list = this.getList(listId);
-    const todosTemp = [...list.todos];
-    newOrder.forEach((todoIndex, position) => {
-      list.todos[position] = todosTemp[todoIndex];
-    });
-    this.saveLists();
+    const todos = this.getTodos(listId).filter((_, index) => index !== todoId);
+    const updatedList = { ...this.getList(listId), todos };
+    this.updateList(listId, updatedList);
   }
 }

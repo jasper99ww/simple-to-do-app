@@ -138,11 +138,9 @@ export class TodoListPanel {
 
   // Render the list panel filtered by search query
   render(query = this.currentQuery) {
-    console.log("X1 w TodoListPanel")
     this.currentQuery = query;
     this.listContainer.innerHTML = '';
     const lists = this.controller.getLists(query);
-    console.log("LISTS RETURNED ARE " + lists)
     lists.forEach( (list) => {
         const listItem = this.factory.createTodoListPanel(list, list.id);
         if (list.id === this.controller.getCurrentListId()) {
@@ -153,8 +151,6 @@ export class TodoListPanel {
   }
 
   setActiveList(){
-
-    console.log("Setting active list")
     const currentListId = this.controller.getCurrentListId();
     const currentItem = this.listContainer.querySelector(`[data-list-id="${currentListId}"]`);
 
