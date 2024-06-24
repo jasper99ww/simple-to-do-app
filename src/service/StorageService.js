@@ -1,5 +1,5 @@
 export class StorageService {
-  
+
   constructor() {
     this.lists = new Map();
     this.loadLists();
@@ -35,6 +35,7 @@ export class StorageService {
   }
 
   getList(listId) {
+    console.log("XXCZ")
     return this.lists.get(listId);
   }
 
@@ -57,7 +58,6 @@ export class StorageService {
     this.saveLists();
   }
 
-
   // TODO methods
 
   getTodos(listId) {
@@ -70,7 +70,7 @@ export class StorageService {
     this.saveLists();
   }
 
-  updateTodo(todoIndex, listId, text) {
+  updateTodoName(todoIndex, listId, text) {
     const todos = this.getTodos(listId);
     todos[todoIndex].text = text;
     this.saveLists();

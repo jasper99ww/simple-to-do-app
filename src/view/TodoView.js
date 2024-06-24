@@ -44,9 +44,11 @@ export class TodoView {
         this.render();
         break;
       case EventTypes.LISTS_EMPTY:
+        console.log("LIST EMPTY signal in todoview")
         this.displayNoLists(); 
         break;
       case EventTypes.LISTS_EXIST:
+        console.log("LIST EXIST signal in todoview")
           this.displayListsExist();
           break;
       case EventTypes.LIST_CHANGED:
@@ -154,6 +156,5 @@ export class TodoView {
   displayError(message) {
     showToast(message, ToastTypes.ERROR);
   }
-
 }
 

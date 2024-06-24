@@ -11,6 +11,7 @@ export class TodoController {
   }
 
   checkListsExistence() {
+    console.log("WILL CALL CHECK")
     this.model.checkListsExistence();
   }
 
@@ -51,8 +52,4 @@ export class TodoController {
   getCurrentListName() {
     return this.model.getCurrentListName();
   }
-  // getCurrentList() {
-  //   console.log("kontroler wezwany")
-  //   return this.model.getCurrentList();
-  // }
 }

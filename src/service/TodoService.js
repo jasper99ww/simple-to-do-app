@@ -6,7 +6,10 @@ export class TodoService {
   }
 
   getTodos(currentListId) {
-    return this.storageService.getList(currentListId).todos || [];
+    console.log("currentListId", currentListId)
+    const p1 = this.storageService.getTodos(currentListId);
+    console.log('p1 is ' + p1);
+    return p1;
   }
 
   addTodo(todo, listId) {
@@ -15,7 +18,7 @@ export class TodoService {
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    this.storageService.addTodo(todo, listId);
+    this.storageService.addTodo(listId, todo);
     return { success: true };
   }
 
@@ -36,7 +39,7 @@ export class TodoService {
     if (!validation.isValid) {
         return { success: false, error: validation.error, message: validation.message };
     }
-    this.storageService.deleteTodoItem(todoId, listId);
+    this.storageService.deleteTodo(listId, todoId);
     return { success: true };
   }
 

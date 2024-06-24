@@ -9,11 +9,12 @@ export class ListService {
     getLists(query = '') {
       const lists = this.storageService.getLists();
       const filteredLists = [];
-      for (let listId in lists) {
-          if (lists[listId].name.toLowerCase().includes(query.toLowerCase())) {
-              filteredLists.push(lists[listId]);
+      const queryLower = query.toLowerCase();
+      lists.forEach(list => {
+          if (list.name.toLowerCase().includes(queryLower)) {
+              filteredLists.push(list);
           }
-      }
+      });
       return filteredLists;
     }
 
@@ -34,6 +35,18 @@ export class ListService {
 
     getCurrentListId() {
       return this.storageService.loadCurrentListId();
+    }
+
+    getCurrentListName() {
+      const currentListId = this.getCurrentListId();
+      if (!currentListId) {
+        return { success: true, listName: "" };  // Nie ma aktualnej listy
+      }
+      const result = this.getList(currentListId);
+      if (!result.success) {
+          return result;  // Przekazuje błąd dalej
+      }
+      return { success: true, listName: result.list.name };
     }
 
     addList(name) {
@@ -62,13 +75,14 @@ export class ListService {
     }
 
     deleteList(listId) {
-      const validation = ModelValidator.validateListExists(this.lists, listId);
+      const lists = this.storageService.getLists();
+      const validation = ModelValidator.validateListExists(lists, listId);
         if (!validation.isValid) {
             return { success: false, error: validation.error, message: validation.message };
         }
 
         let previousKey = null;
-        for (let key of this.lists.keys()) {
+        for (let key of lists.keys()) {
             if (key === listId) {
                 break;
             }
@@ -122,7 +136,7 @@ export class ListService {
             }
         });
 
-        this.lists.clear();
+        lists.clear();
         newList.forEach((list, listId) => {
             lists.set(listId, list);
         });

@@ -3,16 +3,19 @@ export class ObserverManager {
       this.observers = new Map();
   }
 
-  addObserver(eventType, observer) {
-    if (!this.observers.has(eventType)) {
-        this.observers.set(eventType, new Set());
-    }
-    this.observers.get(eventType).add(observer);
+  addObserver(observer, eventTypes) {
+    // Dodajemy obserwatora z jego zestawem zdarzeń, na które chce reagować
+    if (!this.observers.has(observer)) {
+        this.observers.set(observer, new Set(eventTypes));
+    } 
   }
 
-  notifyObservers(eventType, data) {
-      if (this.observers.has(eventType)) {
-          this.observers.get(eventType).forEach(observer => observer.update(eventType, data));
+  notifyObservers(event) {
+    // Powiadamiamy tylko tych obserwatorów, którzy subskrybowali dane zdarzenie
+    this.observers.forEach((events, observer) => {
+      if (events.has(event.eventType)) {
+          observer.update(event, event.message);
       }
+    });
   }
 }

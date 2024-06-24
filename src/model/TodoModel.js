@@ -11,8 +11,8 @@ export class TodoModel {
 
  /* Observer methods */
 
-  addObserver(eventType, observer) {
-    this.observerManager.addObserver(eventType, observer);
+  addObserver(observer, eventTypes) {
+    this.observerManager.addObserver(observer, eventTypes);
   }
 
   notifyObservers(eventType, data) {
@@ -51,11 +51,11 @@ export class TodoModel {
   }
 
   getCurrentListName() {
-    const result = this.listService.getList(this.getCurrentListId());
+    const result = this.listService.getCurrentListName();
     if (result.success) {
-      return result.list.name;
+      return result.listName;
     } else {
-        this.notifyObservers(EventTypes.ERROR, { message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
@@ -87,6 +87,7 @@ export class TodoModel {
     const result = this.listService.updateListName(listId, newName);
     if(result.success){
       this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+      this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
     } else {
       this.notifyObservers({ eventType: result.error, message: result.message });
     }
@@ -129,7 +130,6 @@ export class TodoModel {
   reorderLists(newOrder) {
     const result = this.listService.reorderLists(newOrder);
     if (result.success) {
-        this.setLocalStorage();
         this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
@@ -155,7 +155,7 @@ export class TodoModel {
   }
 
   updateTodoName(index, text) {
-    const result = this.todoService.updateTodoName(index, text, this.getCurrentListId());
+    const result = this.todoService.updateTodoName(index, this.getCurrentListId(), text);
     if(result.success){
       this.notifyUpdateListAndTodos();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
