@@ -1,1 +1,30 @@
-node_modules/ 
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+
+# Coverage reports
+src/_testUtils/coverage/
+
+# Jest cache and coverage reports
+jest/
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp

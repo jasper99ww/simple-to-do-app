@@ -9,4 +9,6 @@ module.exports = {
   },
   moduleFileExtensions: ['js', 'json', 'jsx', 'node'],
   testEnvironment: 'node',
+  collectCoverage: true,
+  coverageDirectory: '<rootDir>/src/_testUtils/coverage',
 };

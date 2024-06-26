@@ -8,11 +8,28 @@ export class ListService {
 
   validateAndExecute(validationMethod, operationCallback, ...args) {
     const lists = this.storageService.getLists();
-    const validation = validationMethod(lists, ...args);
+    const validation = validationMethod.call(ModelValidator, lists, ...args);
     if (!validation.isValid) {
       return { success: false, error: validation.error, message: validation.message };
     }
-    return operationCallback(lists);
+    return operationCallback.call(this, lists, ...args);
+  }
+
+  addList(name) {
+    const listNames = this.storageService.getListNames();
+    const validation = ModelValidator.validateListName(listNames, name);
+    if (!validation.isValid) {
+      return { success: false, error: validation.error, message: validation.message };
+    }
+    const listId = crypto.randomUUID();
+    const newList = {
+      id: listId,
+      name: name,
+      todos: [],
+      completed: false
+    }
+    this.storageService.addList(newList);
+    return { success: true, listId: listId };
   }
 
   getLists(query = '') {
@@ -52,23 +69,6 @@ export class ListService {
     return { success: true, listName: result.list.name };
   }
 
-  addList(name) {
-    const listNames = this.storageService.getListNames();
-    const validation = ModelValidator.validateListName(listNames, name);
-    if (!validation.isValid) {
-      return { success: false, error: validation.error, message: validation.message };
-    }
-    const listId = crypto.randomUUID();
-    const newList = {
-      id: listId,
-      name: name,
-      todos: [],
-      completed: false
-    }
-    this.storageService.addList(newList);
-    return { success: true, listId: listId };
-  }
-
   saveCurrentListId(listId) {
     this.storageService.saveCurrentListId(listId);
   }
@@ -83,7 +83,6 @@ export class ListService {
         this.storageService.updateList(listId, list);
         return { success: true };
       },
-      lists,
       listNames,
       listId,
       newName
@@ -118,15 +117,6 @@ export class ListService {
       listId
     );
   }
-
-  // changeCurrentList(newListId) {
-  //   console.log("WILL CHANGE LIST")
-  //   return this.validateAndExecute(
-  //     ModelValidator.validateListExists,
-  //     () => ({ success: true, newListId }),
-  //     newListId
-  //   );
-  // }
 
   reorderLists(newOrder) {
     const lists = this.storageService.getLists();

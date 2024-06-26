@@ -15,8 +15,8 @@ export class TodoModel {
     this.observerManager.addObserver(observer, eventTypes);
   }
 
-  notifyObservers(eventType, data) {
-    this.observerManager.notifyObservers(eventType, data);
+  notifyObservers(eventType) {
+    this.observerManager.notifyObservers(eventType);
   }
 
   notifyUpdateListAndTodos() {
@@ -25,12 +25,21 @@ export class TodoModel {
   }
 
  /* List methods */
+
+  addList(name) {
+    const result = this.listService.addList(name);
+    if (result.success) {
+        this.setCurrentListId(result.listId);
+        this.notifyUpdateListAndTodos();
+        //Check if lists exist to update UI for empty lists
+        this.checkListsExistence();
+    } else {
+        this.notifyObservers({ eventType: result.error, message: result.message });
+    }
+  }
+
   getLists(query = '') {
-    const aa = this.listService.getLists(query);
-    aa.forEach((list) => {
-      console.log(" W MODELLU NAZWA TO ", list.name)
-    });
-    return aa;
+    return this.listService.getLists(query);
   }
 
   getCurrentListId() {
@@ -39,7 +48,6 @@ export class TodoModel {
 
   setCurrentListId(listId) {
     if (this._currentListId !== listId) {
-      console.log("WILL SET CURRENT LIST ID " + listId)
       this._currentListId = listId;
       this.listService.saveCurrentListId(listId);
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
@@ -61,30 +69,6 @@ export class TodoModel {
       return result.listName;
     } else {
       this.notifyObservers({ eventType: result.error, message: result.message });
-    }
-  }
-
-  /* ListService methods */
-  checkListsExistence() {
-    const { success, updateUI } = this.listService.checkListsExistence();
-    if (updateUI) {
-        if (success) {
-            this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
-        } else {
-            this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
-        }
-    }
-  }
-
-  addList(name) {
-    const result = this.listService.addList(name);
-    if (result.success) {
-        this.setCurrentListId(result.listId);
-        this.notifyUpdateListAndTodos();
-        //Check if lists exist to update UI for empty lists
-        this.checkListsExistence();
-    } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
@@ -138,6 +122,17 @@ export class TodoModel {
         this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
     } else {
         this.notifyObservers({ eventType: result.error, message: result.message });
+    }
+  }
+
+  checkListsExistence() {
+    const { success, updateUI } = this.listService.checkListsExistence();
+    if (updateUI) {
+        if (success) {
+            this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
+        } else {
+            this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
+        }
     }
   }
 
