@@ -6,7 +6,7 @@ export class TodoModel {
     this.listService = listService;
     this.todoService = todoService;
     this.observerManager = observerManager;
-    this._currentListId = this.listService.getCurrentListId();
+    this._currentListId = null;
  }
 
  /* Observer methods */
@@ -43,6 +43,9 @@ export class TodoModel {
   }
 
   getCurrentListId() {
+    if (!this._currentListId) {
+      this._currentListId = this.listService.getCurrentListId();
+    }
     return this._currentListId;
   }
 

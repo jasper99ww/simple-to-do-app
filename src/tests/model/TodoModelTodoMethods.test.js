@@ -8,14 +8,20 @@ jest.mock('../../service/ObserverManager.js');
 
 describe('TodoModel - Todo Methods', () => {
   let model;
+  let listServiceMock;
   let todoServiceMock;
   let observerManagerMock;
 
   beforeEach(() => {
+
+    listServiceMock = {
+      getCurrentListId: jest.fn().mockReturnValue('default-list-id'),
+    };
+
     todoServiceMock = new TodoService();
     observerManagerMock = new ObserverManager();
     jest.clearAllMocks();
-    model = new TodoModel({}, todoServiceMock, observerManagerMock);
+    model = new TodoModel(listServiceMock, todoServiceMock, observerManagerMock);
   });
 
   // Test getTodos method
