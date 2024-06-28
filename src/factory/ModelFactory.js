@@ -2,7 +2,7 @@ import { ListService } from '../service/ListService.js';
 import { TodoService } from '../service/TodoService.js';
 import { StorageService } from '../service/StorageService.js';
 import { ObserverManager } from '../service/ObserverManager.js';
-import { TodoModel } from '../model/TodoModel.js';
+import { TodoAppModel } from '../model/TodoAppModel.js';
 
 export default class ModelFactory {
     static createListService(storageService) {
@@ -28,6 +28,6 @@ export default class ModelFactory {
         const listService = ModelFactory.createListService(storageService);
         const todoService = ModelFactory.createTodoService(storageService);
 
-        return new TodoModel(listService, todoService, observerManager);
+        return new TodoAppModel(listService, todoService, observerManager);
     }
 }

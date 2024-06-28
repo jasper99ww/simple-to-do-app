@@ -1,4 +1,4 @@
-import { TodoModel } from '../../model/TodoModel.js';
+import { TodoModel } from '../../model/TodoAppModel.js';
 import { ListService } from '../../service/ListService.js';
 import { ObserverManager } from '../../service/ObserverManager.js';
 import { EventTypes } from '../../utils/eventTypes.js';

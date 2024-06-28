@@ -1,6 +1,6 @@
 import { EventTypes } from '../utils/eventTypes.js';
 
-export class TodoModel {
+export class TodoAppModel {
 
   constructor(listService, todoService, observerManager) {
     this.listService = listService;
