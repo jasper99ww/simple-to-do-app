@@ -1,4 +1,4 @@
-import { TodoModel } from '../../model/TodoAppModel.js';
+import { TodoAppModel } from '../../model/TodoAppModel.js';
 import { ListService } from '../../service/ListService.js';
 import { ObserverManager } from '../../service/ObserverManager.js';
 import { EventTypes } from '../../utils/eventTypes.js';
@@ -6,7 +6,7 @@ import { EventTypes } from '../../utils/eventTypes.js';
 jest.mock('../../service/ListService.js');
 jest.mock('../../service/ObserverManager.js');
 
-describe('TodoModel - List Methods', () => {
+describe('TodoAppModel - List Methods', () => {
   let model;
   let listServiceMock;
   let observerManagerMock;
@@ -15,10 +15,11 @@ describe('TodoModel - List Methods', () => {
     listServiceMock = new ListService();
     observerManagerMock = new ObserverManager();
     jest.clearAllMocks();
-    model = new TodoModel(listServiceMock, {}, observerManagerMock);
+    model = new TodoAppModel(listServiceMock, {}, observerManagerMock);
     jest.spyOn(model, 'setCurrentListId');
     jest.spyOn(model, 'checkListsExistence');
   });
+
   // Test addList functionality
   test('addList should notify and update UI when successful', () => {
     const newListId = '123';
@@ -29,8 +30,8 @@ describe('TodoModel - List Methods', () => {
 
     expect(listServiceMock.addList).toHaveBeenCalledWith("New List");
     expect(model.setCurrentListId).toHaveBeenCalledWith(newListId);
-
     expect(observerManagerMock.notifyObservers).toHaveBeenNthCalledWith(1, { eventType: EventTypes.LIST_CHANGED });
+
     expect(observerManagerMock.notifyObservers).toHaveBeenNthCalledWith(2, { eventType: EventTypes.UPDATE_TODO });
     expect(observerManagerMock.notifyObservers).toHaveBeenNthCalledWith(3, { eventType: EventTypes.UPDATE_LIST });
     expect(observerManagerMock.notifyObservers).toHaveBeenNthCalledWith(4, { eventType: EventTypes.LISTS_EXIST });
@@ -80,9 +81,8 @@ describe('TodoModel - List Methods', () => {
   // Test setCurrentListId method
   test('setCurrentListId should not update listId if the current listId is the same', () => {
     model._currentListId = '123';
-
     model.setCurrentListId('123');
-
+    
     expect(listServiceMock.saveCurrentListId).not.toHaveBeenCalled();
     expect(observerManagerMock.notifyObservers).not.toHaveBeenCalled();
   });

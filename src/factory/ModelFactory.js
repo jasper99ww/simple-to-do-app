@@ -14,7 +14,9 @@ export default class ModelFactory {
     }
 
     static createStorageService() {
-        return new StorageService();
+        const storageService = new StorageService();
+        storageService.initialize();
+        return storageService;
     }
 
     static createObserverManager() {

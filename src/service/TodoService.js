@@ -1,4 +1,4 @@
-import { ModelValidator } from '../model/ModelValidator.js';
+import { ModelValidator } from '../service/ModelValidator.js';
 
 export class TodoService {
   constructor(storageService) {

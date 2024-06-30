@@ -42,19 +42,19 @@ export class TodoAppModel {
     return this.listService.getLists(query);
   }
 
-  getCurrentListId() {
-    if (!this._currentListId) {
-      this._currentListId = this.listService.getCurrentListId();
-    }
-    return this._currentListId;
-  }
-
   setCurrentListId(listId) {
     if (this._currentListId !== listId) {
       this._currentListId = listId;
       this.listService.saveCurrentListId(listId);
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
     }
+  }
+
+  getCurrentListId() {
+    if (!this._currentListId) {
+      this._currentListId = this.listService.getCurrentListId();
+    }
+    return this._currentListId;
   }
 
   getCurrentList() {

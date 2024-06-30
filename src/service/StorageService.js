@@ -2,6 +2,10 @@ export class StorageService {
 
   constructor() {
     this.lists = new Map();
+    this.currentListId = null;
+  }
+
+  initialize() {
     this.loadLists();
     this.currentListId = this.loadCurrentListId();
   }

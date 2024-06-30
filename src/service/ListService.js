@@ -1,4 +1,4 @@
-import { ModelValidator } from '../model/ModelValidator.js';
+import { ModelValidator } from './ModelValidator.js';
 
 export class ListService {
   constructor(storageService) {

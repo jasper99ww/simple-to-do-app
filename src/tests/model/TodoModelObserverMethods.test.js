@@ -1,19 +1,17 @@
-import { TodoModel } from '../../model/TodoAppModel.js';
+import { TodoAppModel } from '../../model/TodoAppModel.js';
 import { ObserverManager } from '../../service/ObserverManager.js';
 import { EventTypes } from '../../utils/eventTypes.js';
 
 jest.mock('../../service/ObserverManager.js');
 
-describe('TodoModel - Observer Methods', () => {
+describe('TodoAppModel - Observer Methods', () => {
   let model;
   let observerManagerMock;
 
   beforeEach(() => {
     observerManagerMock = new ObserverManager();
     jest.clearAllMocks();
-    model = new TodoModel({}, {}, observerManagerMock);
-
-    
+    model = new TodoAppModel({}, {}, observerManagerMock);
   });
 
   test('addObserver should call observerManager.addObserver with correct arguments', () => {

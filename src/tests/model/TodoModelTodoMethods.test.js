@@ -1,4 +1,4 @@
-import { TodoModel } from '../../model/TodoModel.js';
+import { TodoAppModel } from '../../model/TodoAppModel.js';
 import { TodoService } from '../../service/TodoService.js';
 import { ObserverManager } from '../../service/ObserverManager.js';
 import { EventTypes } from '../../utils/eventTypes.js';
@@ -6,7 +6,7 @@ import { EventTypes } from '../../utils/eventTypes.js';
 jest.mock('../../service/TodoService.js');
 jest.mock('../../service/ObserverManager.js');
 
-describe('TodoModel - Todo Methods', () => {
+describe('TodoAppModel - Todo Methods', () => {
   let model;
   let listServiceMock;
   let todoServiceMock;
@@ -21,7 +21,7 @@ describe('TodoModel - Todo Methods', () => {
     todoServiceMock = new TodoService();
     observerManagerMock = new ObserverManager();
     jest.clearAllMocks();
-    model = new TodoModel(listServiceMock, todoServiceMock, observerManagerMock);
+    model = new TodoAppModel(listServiceMock, todoServiceMock, observerManagerMock);
   });
 
   // Test getTodos method
