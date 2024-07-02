@@ -14,24 +14,61 @@ describe('ListService', () => {
     storageServiceMock = new StorageService();
     jest.clearAllMocks();
     listService = new ListService(storageServiceMock);
-    
+    jest.spyOn(crypto, 'randomUUID').mockReturnValue('fake-uuid');
   });
 
-  // Test addList method 
+  // Test validateAndExecute method
+  describe('validateAndExecute', () => {
+    it('should execute the operation callback when validation is successful', () => {
+      const lists = new Map();
+      const args = ['arg1', 'arg2'];
+      const mockCallback = jest.fn(() => ({ success: true }));
+      const mockValidation = jest.fn(() => ({ isValid: true }));
+      storageServiceMock.getLists.mockReturnValue(lists);
+  
+      const result = listService.validateAndExecute(mockValidation, mockCallback, ...args);
+  
+      expect(mockValidation).toHaveBeenCalledWith(lists, ...args);
+      expect(mockCallback).toHaveBeenCalledWith(lists, ...args);
+      expect(result).toEqual({ success: true });
+    });
+  
+    it('should not execute the operation callback and return an error when validation fails', () => {
+      const lists = new Map();
+      const args = ['arg1', 'arg2'];
+      const mockCallback = jest.fn();
+      const mockValidation = jest.fn(() => ({ isValid: false, error: 'Validation Error', message: 'Invalid data' }));
+      storageServiceMock.getLists.mockReturnValue(lists);
+  
+      const result = listService.validateAndExecute(mockValidation, mockCallback, ...args);
+  
+      expect(mockValidation).toHaveBeenCalledWith(lists, ...args);
+      expect(mockCallback).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        success: false,
+        error: 'Validation Error',
+        message: 'Invalid data'
+      });
+    });
+  });  
 
+  // Test addList method 
   describe('addList', () => {
     it('should add a list if the name is valid', () => {
       const listName = "New List";
       storageServiceMock.getListNames.mockReturnValue(new Set(['Existing List']));
       ModelValidator.validateListName.mockReturnValue({ isValid: true });
-      storageServiceMock.addList.mockImplementation(() => {});
 
       const result = listService.addList(listName);
 
       expect(ModelValidator.validateListName).toHaveBeenCalledWith(expect.anything(), listName);
-      expect(storageServiceMock.addList).toHaveBeenCalled();
-      expect(result.success).toBe(true);
-      expect(result).toHaveProperty('listId');
+      expect(storageServiceMock.addList).toHaveBeenCalledWith({
+        id: 'fake-uuid',
+        name: listName,
+        todos: [],
+        completed: false
+      });
+      expect(result).toEqual({ success: true, listId: 'fake-uuid' });
     });
 
     it('should not add a list if the name is not valid', () => {
@@ -47,14 +84,15 @@ describe('ListService', () => {
 
       expect(ModelValidator.validateListName).toHaveBeenCalledWith(expect.anything(), listName);
       expect(storageServiceMock.addList).not.toHaveBeenCalled();
-      expect(result.success).toBe(false);
-      expect(result.error).toBe('ERROR_LIST');
-      expect(result.message).toBe('List already exists');
-    });
+      expect(result).toEqual({
+        success: false,
+        error: 'ERROR_LIST',
+        message: 'List already exists'
+      });
   });
+});
 
   // Test getLists method
-
   describe('getLists', () => {
     it('should return filtered lists based on the query', () => {
         const lists = new Map([
@@ -85,25 +123,34 @@ describe('ListService', () => {
   // Test getList method
   describe('getList', () => {
     it('should return the list if it exists', () => {
-        const lists = new Map([
-            ['1', { id: '1', name: 'Work', todos: [], completed: false }]
-        ]);
-        storageServiceMock.getLists.mockReturnValue(lists);
-        ModelValidator.validateListExists.mockReturnValue({ isValid: true });
-
-        const result = listService.getList('1');
-
-        expect(result).toEqual({ success: true, list: { id: '1', name: 'Work', todos: [], completed: false } });
+      const listId = '1';
+      const list = { id: '1', name: 'Work', todos: [], completed: false };
+      const listsMap = new Map([[listId, list]]);
+      storageServiceMock.getLists.mockReturnValue(listsMap);
+      storageServiceMock.getList.mockReturnValue(list);
+      ModelValidator.validateListExists.mockReturnValue({ isValid: true });
+  
+      const result = listService.getList(listId);
+  
+      expect(storageServiceMock.getLists).toHaveBeenCalled();
+      expect(storageServiceMock.getList).toHaveBeenCalledWith(listId);
+      expect(ModelValidator.validateListExists).toHaveBeenCalledWith(listsMap, listId);
+      expect(result).toEqual({ success: true, list: list });
     });
-
+  
     it('should return an error if the list does not exist', () => {
-        const lists = new Map();
-        storageServiceMock.getLists.mockReturnValue(lists);
-        ModelValidator.validateListExists.mockReturnValue({ isValid: false, error: 'ERROR_LIST', message: 'List not found' });
-
-        const result = listService.getList('1');
-
-        expect(result).toEqual({ success: false, error: 'ERROR_LIST', message: 'List not found' });
+      const listId = '1';
+      const listsMap = new Map();
+      storageServiceMock.getLists.mockReturnValue(listsMap);
+      storageServiceMock.getList.mockReturnValue(undefined);
+      ModelValidator.validateListExists.mockReturnValue({ isValid: false, error: 'ERROR_LIST', message: 'List not found' });
+  
+      const result = listService.getList(listId);
+  
+      expect(storageServiceMock.getLists).toHaveBeenCalled();
+      expect(storageServiceMock.getList).not.toHaveBeenCalled(); // Nie powinna być wywołana jeśli lista nie istnieje
+      expect(ModelValidator.validateListExists).toHaveBeenCalledWith(listsMap, listId);
+      expect(result).toEqual({ success: false, error: 'ERROR_LIST', message: 'List not found' });
     });
 });
 
@@ -165,16 +212,22 @@ describe('ListService', () => {
   describe('updateListName', () => {
     it('should update the name of a list if validation passes', () => {
       const listNames = new Set(['Home']);
-      const listsMock = new Map([['1', { id: '1', name: 'Home', todos: [], completed: false }]]);
+      const initialList = { id: '1', name: 'Home', todos: [], completed: false };
+      const listsMock = new Map([['1', initialList]]);
       storageServiceMock.getListNames.mockReturnValue(listNames);
       storageServiceMock.getLists.mockReturnValue(listsMock);
 
       ModelValidator.validateUpdatedListName.mockReturnValue({ isValid: true });
-      storageServiceMock.updateList.mockImplementation(() => {});
-  
-      const result = listService.updateListName('1', 'Home Updated');
+      storageServiceMock.updateList.mockImplementation((id, updatedList) => {
+        listsMock.set(id, updatedList);
+      });
+
+      const newName = 'Home Updated';
+      const result = listService.updateListName('1', newName);
   
       expect(result.success).toBe(true);
+      expect(listsMock.get('1').name).toBe(newName);
+      expect(storageServiceMock.updateList).toHaveBeenCalledWith('1', {...initialList, name: newName});
     });
   
     it('should not update the list name if validation fails', () => {
@@ -205,10 +258,8 @@ describe('ListService', () => {
       });
       ModelValidator.validateListExists.mockReturnValue({ isValid: true });
   
-      // Wywołanie metody
       const result = listService.deleteList('1');
   
-      // Sprawdzenie wyników
       expect(result.success).toBe(true);
       expect(result.previousListId).toBe('0');
     });
@@ -217,18 +268,21 @@ describe('ListService', () => {
   // Test toggleTodoListCompleted method
   describe('toggleTodoListCompleted', () => {
     it('should toggle the completion status of a list', () => {
-      const mockMap = new Map();
-      mockMap.set('1', { id: '1', name: 'Test List', completed: false });
-      storageServiceMock.getLists.mockReturnValue(mockMap);
+      const listId = '1';
+      const initialList = { id: listId, name: 'Test List', completed: false };
+      const listsMap = new Map([[listId, initialList]]);
+
+      storageServiceMock.getLists.mockReturnValue(listsMap);
+      storageServiceMock.getList.mockReturnValue({...initialList});
       storageServiceMock.updateList.mockImplementation((id, list) => {
-        mockMap.set(id, { ...list, completed: !list.completed });
+        listsMap.set(id, {...list});
       });
-      ModelValidator.validateListExists.mockReturnValue({ isValid: true });
-  
-      const result = listService.toggleTodoListCompleted('1');
-  
+
+      const result = listService.toggleTodoListCompleted(listId);
+
       expect(result.success).toBe(true);
-      expect(mockMap.get('1').completed).toBe(true);
+      expect(listsMap.get(listId).completed).toBe(true);
+      expect(storageServiceMock.updateList).toHaveBeenCalledWith(listId, {...initialList, completed: true});
     });
   
     it('should return an error if the list does not exist', () => {
@@ -245,16 +299,28 @@ describe('ListService', () => {
   // Test reorderLists method
   describe('reorderLists', () => {
       it('should reorder the lists according to the new order provided', () => {
-        const mockMap = new Map([
+        const initialMap = new Map([
           ['1', { id: '1', name: 'List 1' }],
           ['2', { id: '2', name: 'List 2' }]
         ]);
-        storageServiceMock.getLists.mockReturnValue(mockMap);
-        storageServiceMock.saveLists.mockImplementation(() => {});
+    
+        storageServiceMock.getLists.mockReturnValue(initialMap);
+  
+        let savedMap;
+        storageServiceMock.saveLists.mockImplementation((newList) => {
+          savedMap = newList;
+        });
     
         const result = listService.reorderLists(['2', '1']);
     
         expect(result.success).toBe(true);
+
+        const expectedMap = new Map([
+          ['2', { id: '2', name: 'List 2' }],
+          ['1', { id: '1', name: 'List 1' }]
+        ]);
+    
+        expect(savedMap).toEqual(expectedMap);
     });
   });
 
@@ -281,7 +347,6 @@ describe('ListService', () => {
     it('should handle no lists after the first load', () => {
       listService.firstLoad = false;
       storageServiceMock.getLists.mockReturnValue(new Map());
-      storageServiceMock.removeCurrentListId.mockImplementation(() => {});
       const result = listService.checkListsExistence();
       expect(result).toEqual({ success: false, updateUI: true });
       expect(storageServiceMock.removeCurrentListId).toHaveBeenCalled();

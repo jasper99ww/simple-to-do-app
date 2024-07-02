@@ -40,8 +40,8 @@ export class ListService {
   getList(listId) {
     return this.validateAndExecute(
       ModelValidator.validateListExists,
-      (lists) => {
-        const list = lists.get(listId);
+      () => {
+        const list = this.storageService.getList(listId);
         return { success: true, list };
       },
       listId
@@ -108,8 +108,8 @@ export class ListService {
   toggleTodoListCompleted(listId) {
     return this.validateAndExecute(
       ModelValidator.validateListExists,
-      (lists) => {
-        const list = lists.get(listId);
+      () => {
+        const list = this.storageService.getList(listId);
         list.completed = !list.completed;
         this.storageService.updateList(listId, list);
         return { success: true };
