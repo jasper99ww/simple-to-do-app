@@ -12,9 +12,9 @@ describe('TodoAppModel - List Methods', () => {
   let observerManagerMock;
 
   beforeEach(() => {
+    jest.clearAllMocks();
     listServiceMock = new ListService();
     observerManagerMock = new ObserverManager();
-    jest.clearAllMocks();
     model = new TodoAppModel(listServiceMock, {}, observerManagerMock);
     jest.spyOn(model, 'setCurrentListId');
     jest.spyOn(model, 'checkListsExistence');

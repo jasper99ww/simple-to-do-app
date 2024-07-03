@@ -11,8 +11,8 @@ describe('ListService', () => {
   let storageServiceMock;
 
   beforeEach(() => {
-    storageServiceMock = new StorageService();
     jest.clearAllMocks();
+    storageServiceMock = new StorageService();
     listService = new ListService(storageServiceMock);
     jest.spyOn(crypto, 'randomUUID').mockReturnValue('fake-uuid');
   });

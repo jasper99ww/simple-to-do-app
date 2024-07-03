@@ -9,8 +9,8 @@ describe('TodoAppModel - Observer Methods', () => {
   let observerManagerMock;
 
   beforeEach(() => {
-    observerManagerMock = new ObserverManager();
     jest.clearAllMocks();
+    observerManagerMock = new ObserverManager();
     model = new TodoAppModel({}, {}, observerManagerMock);
   });
 

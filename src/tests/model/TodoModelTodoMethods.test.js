@@ -13,14 +13,13 @@ describe('TodoAppModel - Todo Methods', () => {
   let observerManagerMock;
 
   beforeEach(() => {
-
+    jest.clearAllMocks();
     listServiceMock = {
       getCurrentListId: jest.fn().mockReturnValue('default-list-id'),
     };
 
     todoServiceMock = new TodoService();
     observerManagerMock = new ObserverManager();
-    jest.clearAllMocks();
     model = new TodoAppModel(listServiceMock, todoServiceMock, observerManagerMock);
   });
 
