@@ -100,6 +100,73 @@ describe('TodoService', () => {
   });
 
   // Test toggleTodoItemCompleted method
+  describe('toggleTodoItemCompleted', () => {
+    it('should toggle the completion status of a todo item', () => {
+      const todos = [{ id: '1', text: 'Test Todo', completed: false }];
+      storageServiceMock.getTodos.mockReturnValue(todos);
+      ModelValidator.validateTodoIndex.mockReturnValue({ isValid: true });
+  
+      const result = todoService.toggleTodoItemCompleted('1', 'list1');
+  
+      expect(result.success).toBe(true);
+      expect(storageServiceMock.updateTodo).toHaveBeenCalledWith('list1', '1', { ...todos[0], completed: true });
+    });
+  
+    it('should return an error if the todo item index is invalid', () => {
+      storageServiceMock.getTodos.mockReturnValue([]);
+      ModelValidator.validateTodoIndex.mockReturnValue({ isValid: false, error: 'ERROR_TODO', message: 'Invalid todo index' });
+  
+      const result = todoService.toggleTodoItemCompleted('1', 'list1');
+  
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('ERROR_TODO');
+      expect(result.message).toBe('Invalid todo index');
+      expect(storageServiceMock.updateTodo).not.toHaveBeenCalled();
+    });
+  });
+  
+  describe('reorderItems', () => {
+    it('should reorder the todo items correctly and return success', () => {
+      const listId = 'list1';
+      const initialTodos = [
+        { id: 'todo1', text: 'First todo', completed: false },
+        { id: 'todo2', text: 'Second todo', completed: true }
+      ];
+      const newOrder = [1, 0]; // New order will place 'Second todo' before 'First todo'
+  
+      storageServiceMock.getTodos.mockReturnValue(initialTodos);
+      storageServiceMock.getList.mockReturnValue({ id: listId, todos: initialTodos });
+      ModelValidator.validateListExists.mockReturnValue({ isValid: true });
+  
+      const result = todoService.reorderItems(newOrder, listId);
+  
+      expect(result.success).toBe(true);
+      expect(storageServiceMock.updateList).toHaveBeenCalledWith(listId, {
+        id: listId,
+        todos: [
+          { id: 'todo2', text: 'Second todo', completed: true },
+          { id: 'todo1', text: 'First todo', completed: false }
+        ]
+      });
+    });
+  
+    it('should return an error when the list does not exist', () => {
+      const listId = 'list2';
+      const newOrder = [1, 0];
+      
+      storageServiceMock.getTodos.mockReturnValue([]);
+      storageServiceMock.getList.mockReturnValue(undefined); // No list found
+      ModelValidator.validateListExists.mockReturnValue({ isValid: false, error: 'ERROR_LIST', message: 'List not found' });
+  
+      const result = todoService.reorderItems(newOrder, listId);
+  
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('ERROR_LIST');
+      expect(result.message).toBe('List not found');
+      expect(storageServiceMock.updateList).not.toHaveBeenCalled();
+    });
+  });
+  
 
 
 });
