@@ -15,6 +15,37 @@ describe('TodoService', () => {
     todoService = new TodoService(storageServiceMock);
   });
 
+  // Test validateAndExecute method
+  describe('validateAndExecute', () => {
+    it('should execute the operation if validation is successful', () => {
+      const lists = new Map();
+      const operationCallback = jest.fn(() => ({ success: true }));
+      const validationMethod = jest.fn(() => ({ isValid: true }));
+      storageServiceMock.getLists.mockReturnValue(lists);
+
+      const result = todoService.validateAndExecute(validationMethod, operationCallback, 'listId');
+
+      expect(storageServiceMock.getLists).toHaveBeenCalled();
+      expect(validationMethod).toHaveBeenCalledWith(lists, 'listId');
+      expect(operationCallback).toHaveBeenCalled();
+      expect(result).toEqual({ success: true });
+    });
+
+    it('should not execute the operation if validation fails', () => {
+      const lists = new Map();
+      const operationCallback = jest.fn();
+      const validationMethod = jest.fn(() => ({ isValid: false, error: 'ERROR', message: 'Validation failed' }));
+      storageServiceMock.getLists.mockReturnValue(lists);
+
+      const result = todoService.validateAndExecute(validationMethod, operationCallback, 'listId');
+
+      expect(storageServiceMock.getLists).toHaveBeenCalled();
+      expect(validationMethod).toHaveBeenCalledWith(lists, 'listId');
+      expect(operationCallback).not.toHaveBeenCalled();
+      expect(result).toEqual({ success: false, error: 'ERROR', message: 'Validation failed' });
+    });
+  });
+
   // Test getTodos method
   describe('getTodos', () => {
     it('should return todos for a valid list ID', () => {
@@ -62,19 +93,22 @@ describe('TodoService', () => {
   // Test updateTodoName method
   describe('updateTodoName', () => {
     it('should update the text of an existing todo', () => {
-      const todos = [{ id: '1', text: 'Old Name', completed: false }];
-      storageServiceMock.getTodos.mockReturnValue(todos);
+      const todos = [{ text: 'Old Name', completed: false }];
+      jest.spyOn(todoService, 'getTodos').mockReturnValue(todos);
       ModelValidator.validateTodoText.mockReturnValue({ isValid: true });
-  
-      const result = todoService.updateTodoName('1', 'list1', 'New Name');
-  
+
+      const todoId = 0;
+      const listId = 'list1';
+      const newText = 'New Name';
+      const result = todoService.updateTodoName(todoId, listId, newText);
+
       expect(result.success).toBe(true);
-      expect(storageServiceMock.updateTodo).toHaveBeenCalledWith('list1', '1', { ...todos[0], text: 'New Name' });
+      expect(storageServiceMock.updateTodo).toHaveBeenCalledWith(listId, todoId, { ...todos[todoId], text: newText });
     });
   
     it('should not update the todo text if the new text is empty', () => {
-      const todos = [{ id: '1', text: 'Old Name', completed: false }];
-      storageServiceMock.getTodos.mockReturnValue(todos);
+      const todos = [{ text: 'Old Name', completed: false }];
+      jest.spyOn(todoService, 'getTodos').mockReturnValue(todos);
       ModelValidator.validateTodoText.mockReturnValue({ isValid: false, error: 'ERROR_TODO', message: 'Todo text cannot be empty' });
   
       const result = todoService.updateTodoName('1', 'list1', '');
@@ -86,7 +120,6 @@ describe('TodoService', () => {
     });
   });
   
-
   // Test deleteTodoItem method
   describe('deleteTodoItem', () => {
     it('should delete a todo item', () => {
@@ -103,20 +136,24 @@ describe('TodoService', () => {
   describe('toggleTodoItemCompleted', () => {
     it('should toggle the completion status of a todo item', () => {
       const todos = [{ id: '1', text: 'Test Todo', completed: false }];
-      storageServiceMock.getTodos.mockReturnValue(todos);
+      jest.spyOn(todoService, 'getTodos').mockReturnValue(todos);
       ModelValidator.validateTodoIndex.mockReturnValue({ isValid: true });
   
-      const result = todoService.toggleTodoItemCompleted('1', 'list1');
+      const todoId = 0;
+      const listId = 'list1';
+      const result = todoService.toggleTodoItemCompleted(todoId, listId);
   
       expect(result.success).toBe(true);
-      expect(storageServiceMock.updateTodo).toHaveBeenCalledWith('list1', '1', { ...todos[0], completed: true });
+      expect(storageServiceMock.updateTodo).toHaveBeenCalledWith(listId, todoId, { ...todos[todoId], completed: true });
     });
   
     it('should return an error if the todo item index is invalid', () => {
-      storageServiceMock.getTodos.mockReturnValue([]);
+      jest.spyOn(todoService, 'getTodos').mockReturnValue([]);
       ModelValidator.validateTodoIndex.mockReturnValue({ isValid: false, error: 'ERROR_TODO', message: 'Invalid todo index' });
   
-      const result = todoService.toggleTodoItemCompleted('1', 'list1');
+      const todoId = 0;
+      const listId = 'list1';
+      const result = todoService.toggleTodoItemCompleted(todoId, listId);
   
       expect(result.success).toBe(false);
       expect(result.error).toBe('ERROR_TODO');
@@ -124,6 +161,7 @@ describe('TodoService', () => {
       expect(storageServiceMock.updateTodo).not.toHaveBeenCalled();
     });
   });
+  
   
   describe('reorderItems', () => {
     it('should reorder the todo items correctly and return success', () => {
