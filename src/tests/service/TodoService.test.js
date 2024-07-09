@@ -162,7 +162,7 @@ describe('TodoService', () => {
     });
   });
   
-  
+  // Test reorderItems method
   describe('reorderItems', () => {
     it('should reorder the todo items correctly and return success', () => {
       const listId = 'list1';
@@ -170,7 +170,7 @@ describe('TodoService', () => {
         { id: 'todo1', text: 'First todo', completed: false },
         { id: 'todo2', text: 'Second todo', completed: true }
       ];
-      const newOrder = [1, 0]; // New order will place 'Second todo' before 'First todo'
+      const newOrder = [1, 0]; 
   
       storageServiceMock.getTodos.mockReturnValue(initialTodos);
       storageServiceMock.getList.mockReturnValue({ id: listId, todos: initialTodos });
@@ -205,6 +205,4 @@ describe('TodoService', () => {
     });
   });
   
-
-
 });
