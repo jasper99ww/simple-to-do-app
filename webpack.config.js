@@ -25,7 +25,7 @@ module.exports = {
       {
         test: /\.svg$/,
         include: path.resolve(__dirname, 'src/assets/icons'),
-        use: 'svg-inline-loader', // Użyj svg-inline-loader dla wszystkich plików SVG,
+        use: 'svg-inline-loader',
       },
       {
         test: /\.js$/,

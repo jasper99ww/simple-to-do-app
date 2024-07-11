@@ -8,7 +8,7 @@ module.exports = {
     '\\.(svg)$': '<rootDir>/__mocks__/svgMock.js'
   },
   moduleFileExtensions: ['js', 'json', 'jsx', 'node'],
-  testEnvironment: 'node',
+  testEnvironment: 'jsdom',
   collectCoverage: true,
   coverageDirectory: '<rootDir>/src/_testUtils/coverage',
 };
