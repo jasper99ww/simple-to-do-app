@@ -21,7 +21,7 @@ export class ListService {
     if (!validation.isValid) {
       return { success: false, error: validation.error, message: validation.message };
     }
-    const listId = crypto.randomUUID();
+    const listId = this.generateId();
     const newList = {
       id: listId,
       name: name,

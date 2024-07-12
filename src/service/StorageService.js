@@ -21,7 +21,8 @@ export class StorageService {
   }
 
   loadCurrentListId() {
-    return localStorage.getItem("currentListId");
+    this.currentListId = localStorage.getItem("currentListId");
+    return this.currentListId;
   }
 
   getCurrentListId() {

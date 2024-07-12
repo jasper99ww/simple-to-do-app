@@ -1,6 +1,8 @@
+import crypto from 'crypto';
 import { ListService } from '../../service/ListService.js';
 import { StorageService } from '../../service/StorageService.js';
 import { ModelValidator } from '../../service/ModelValidator.js';
+
 
 jest.mock('../../service/StorageService.js');
 jest.mock('../../service/ModelValidator.js');
@@ -14,7 +16,9 @@ describe('ListService', () => {
     jest.clearAllMocks();
     storageServiceMock = new StorageService();
     listService = new ListService(storageServiceMock);
-    jest.spyOn(crypto, 'randomUUID').mockReturnValue('fake-uuid');
+    jest.spyOn(listService, 'generateId').mockReturnValue('fake-uuid');
+
+    // jest.spyOn(crypto, 'randomUUID').mockReturnValue('fake-uuid');
   });
 
   // Test validateAndExecute method
