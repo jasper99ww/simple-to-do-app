@@ -1,4 +1,4 @@
-import { ObserverManager } from '../../service/ObserverManager';
+import { ObserverManager } from '../../service/ObserverManager.js';
 
 describe('ObserverManager', () => {
   let observerManager;
