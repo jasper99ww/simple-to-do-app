@@ -1,11 +1,13 @@
-import ModelFactory from '../../factory/ModelFactory.js';
-import ListService from '../../service/ListService.js';
-import TodoService from '../../service/TodoService.js';
-import StorageService from '../../service/StorageService.js';
-import ObserverManager from '../../service/ObserverManager.js';
-import TodoAppModel from '../../model/TodoAppModel.js';
+import ModelFactory from '../../factory/ModelFactory';
+import { ListService } from '../../service/ListService';
+import { TodoService } from '../../service/TodoService';
+import { StorageService } from '../../service/StorageService';
+import { ObserverManager } from '../../service/ObserverManager';
+import { TodoAppModel } from '../../model/TodoAppModel';
 
 describe('ModelFactory', () => {
+
+  // Test createListService method
   describe('createListService', () => {
     it('should create and return a ListService instance', () => {
       const storageService = new StorageService();
@@ -15,6 +17,7 @@ describe('ModelFactory', () => {
     });
   });
 
+  // Test createTodoService method
   describe('createTodoService', () => {
     it('should create and return a TodoService instance', () => {
       const storageService = new StorageService();
@@ -24,6 +27,7 @@ describe('ModelFactory', () => {
     });
   });
 
+  // Test createStorageService method
   describe('createStorageService', () => {
     it('should create, initialize, and return a StorageService instance', () => {
       const storageService = ModelFactory.createStorageService();
@@ -31,6 +35,7 @@ describe('ModelFactory', () => {
     });
   });
 
+  // Test createObserverManager method
   describe('createObserverManager', () => {
     it('should create and return an ObserverManager instance', () => {
       const observerManager = ModelFactory.createObserverManager();
@@ -38,6 +43,7 @@ describe('ModelFactory', () => {
     });
   });
 
+  // Test createTodoModel method
   describe('createTodoModel', () => {
     it('should create and return a TodoAppModel instance with all dependencies', () => {
       const todoModel = ModelFactory.createTodoModel();

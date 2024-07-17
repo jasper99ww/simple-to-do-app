@@ -31,7 +31,7 @@ export class TodoListPanelFactory {
     li.appendChild(labelForCheckbox);
   }
 
-  addTextLabel(li, text, listId) {
+  addTextLabel(li, text) {
     const label = document.createElement('label');
     label.className = 'todo-list-text';
     label.textContent = text;

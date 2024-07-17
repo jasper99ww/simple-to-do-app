@@ -3,6 +3,7 @@ import { StorageService } from '../../service/StorageService';
 describe('StorageService', () => {
   let storageService;
 
+  // Mock local storage
   const localStorageMock = (() => {
     let store = {};
     return {
@@ -35,6 +36,7 @@ describe('StorageService', () => {
     jest.restoreAllMocks();
   });
 
+  // Test initialize method
   describe('initialize', () => {
     it('should load lists and current list ID upon initialization', () => {
       storageService.initialize();
@@ -44,6 +46,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test loadLists method
   describe('loadLists', () => {
     it('should load lists from localStorage', () => {
       storageService.loadLists();
@@ -52,19 +55,22 @@ describe('StorageService', () => {
     });
   });
 
+  // Test loadCurrentListId method
   describe('loadCurrentListId', () => {
     it('should load the current list ID from localStorage', () => {
       expect(storageService.loadCurrentListId()).toBe('1');
     });
   });
 
+  // Test getCurrentListId method
   describe('getCurrentListId', () => {
     it('should return the current list ID', () => {
-      storageService.loadCurrentListId();  // Assume it sets the currentListId
+      storageService.loadCurrentListId();
       expect(storageService.getCurrentListId()).toBe('1');
     });
   });
 
+  // Test removeCurrentListId method
   describe('removeCurrentListId', () => {
     it('should remove the current list ID from local storage and reset it', () => {
       storageService.removeCurrentListId();
@@ -73,6 +79,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test saveCurrentListId method
   describe('saveCurrentListId', () => {
     it('should save the current list ID to localStorage', () => {
       storageService.saveCurrentListId('2');
@@ -80,14 +87,17 @@ describe('StorageService', () => {
     });
   });
 
+  // Test saveLists method
   describe('saveLists', () => {
     it('should save lists to localStorage', () => {
       const newLists = new Map([['2', { id: '2', name: 'Work', todos: [] }]]);
       storageService.saveLists(newLists);
       expect(localStorage.setItem).toHaveBeenCalledWith('todoLists', JSON.stringify([...newLists]));
+      expect(storageService.getLists()).toEqual(newLists);
     });
   });
 
+  // Test getLists method
   describe('getLists', () => {
     it('should return a copy of the lists', () => {
       storageService.loadLists();
@@ -98,6 +108,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test getList method
   describe('getList', () => {
     it('should retrieve a list by ID', () => {
       storageService.loadLists();
@@ -106,6 +117,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test getListNames method
   describe('getListNames', () => {
     it('should return a set of all list names', () => {
       storageService.loadLists();
@@ -114,6 +126,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test addList method
   describe('addList', () => {
     it('should add a new list and save it', () => {
       const newList = { id: '2', name: 'Work', todos: [] };
@@ -123,6 +136,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test updateList method
   describe('updateList', () => {
     it('should update an existing list and save it', () => {
       storageService.loadLists();
@@ -132,6 +146,7 @@ describe('StorageService', () => {
     });
   });
 
+  // Test deleteList method
   describe('deleteList', () => {
     it('should delete a list and save the change', () => {
       storageService.loadLists();
@@ -141,7 +156,7 @@ describe('StorageService', () => {
   });
 
   // Test TODO methods
-  
+
   describe('Todo management', () => {
     beforeEach(() => {
       // Initialize lists with one list containing some todos
@@ -158,30 +173,32 @@ describe('StorageService', () => {
       storageService.loadLists();
     });
 
-  describe('getTodos', () => {
-    it('should return todos for a specific list', () => {
-      jest.spyOn(storageService, 'getList').mockReturnValue({
-        id: '1',
-        name: 'Home',
-        todos: [
-          { id: 'todo1', text: 'Do laundry', completed: false },
-          { id: 'todo2', text: 'Vacuum room', completed: true }
-        ]
+    // Test getTodos method
+    describe('getTodos', () => {
+      it('should return todos for a specific list', () => {
+        jest.spyOn(storageService, 'getList').mockReturnValue({
+          id: '1',
+          name: 'Home',
+          todos: [
+            { id: 'todo1', text: 'Do laundry', completed: false },
+            { id: 'todo2', text: 'Vacuum room', completed: true }
+          ]
+        });
+
+        const todos = storageService.getTodos('1');
+        expect(todos.length).toBe(2);
+        expect(todos[0].text).toBe('Do laundry');
       });
-      
-      const todos = storageService.getTodos('1');
-      expect(todos.length).toBe(2);
-      expect(todos[0].text).toBe('Do laundry');
+
+      it('should return an empty array if the list does not exist', () => {
+        jest.spyOn(storageService, 'getList').mockReturnValue(undefined);
+
+        const todos = storageService.getTodos('nonexistent');
+        expect(todos).toEqual([]);
+      });
     });
 
-    it('should return an empty array if the list does not exist', () => {
-      jest.spyOn(storageService, 'getList').mockReturnValue(undefined);
-      
-      const todos = storageService.getTodos('nonexistent');
-      expect(todos).toEqual([]);
-    });
-  });
-
+    // Test addTodo method
     describe('addTodo', () => {
       it('should add a todo to an existing list and save updates', () => {
         const newTodo = { id: 'todo3', text: 'Wash dishes', completed: false };
@@ -192,6 +209,7 @@ describe('StorageService', () => {
       });
     });
 
+    // Test updateTodo method
     describe('updateTodo', () => {
       it('should update an existing todo', () => {
         const updatedTodo = { id: 'todo1', text: 'Do laundry quickly', completed: true };
@@ -201,14 +219,34 @@ describe('StorageService', () => {
       });
     });
 
+    // Test deleteTodo method
     describe('deleteTodo', () => {
       it('should delete a todo by index from a list', () => {
+        jest.spyOn(storageService, 'getTodos').mockReturnValue([
+          { id: 'todo1', text: 'Do laundry', completed: false },
+          { id: 'todo2', text: 'Vacuum room', completed: true }
+        ]);
+        jest.spyOn(storageService, 'getList').mockReturnValue({
+          id: '1',
+          name: 'Home',
+          todos: [
+            { id: 'todo1', text: 'Do laundry', completed: false },
+            { id: 'todo2', text: 'Vacuum room', completed: true }
+          ]
+        });
+        const spyUpdateList = jest.spyOn(storageService, 'updateList').mockImplementation(() => {});
+    
         storageService.deleteTodo('1', 0);
-        const todos = storageService.getTodos('1');
-        expect(todos.length).toBe(1);
-        expect(todos[0].text).toBe('Vacuum room');
+    
+        expect(spyUpdateList).toHaveBeenCalledWith('1', {
+          id: '1',
+          name: 'Home',
+          todos: [
+            { id: 'todo2', text: 'Vacuum room', completed: true }
+          ]
+        });
       });
-   });
+    });
   });
 
 });
