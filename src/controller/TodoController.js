@@ -11,7 +11,6 @@ export class TodoController {
   }
 
   checkListsExistence() {
-    console.log("WILL CALL CHECK")
     this.model.checkListsExistence();
   }
 

@@ -17,8 +17,6 @@ describe('ListService', () => {
     storageServiceMock = new StorageService();
     listService = new ListService(storageServiceMock);
     jest.spyOn(listService, 'generateId').mockReturnValue('fake-uuid');
-
-    // jest.spyOn(crypto, 'randomUUID').mockReturnValue('fake-uuid');
   });
 
   // Test validateAndExecute method
