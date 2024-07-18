@@ -1,9 +1,9 @@
-import { EventTypes } from '../utils/eventTypes.js'; 
+import { EventTypes } from '../utils/eventTypes.js';
 
 export class TodoListPanelController {
 
   constructor(model) {
-      this.model = model;
+    this.model = model;
   }
 
   addObserver(observer) {
@@ -15,35 +15,34 @@ export class TodoListPanelController {
   }
 
   addList(name) {
-      this.model.addList(name);
-  }
-
-  deleteList(listId) {
-      this.model.deleteList(listId);
-  }
-
-  updateListName(listId, newName) {
-      this.model.updateListName(listId, newName);
-  }
-
-  changeCurrentList(listId) {
-      this.model.changeCurrentList(listId);
-  }
-
-  toggleListCompletion(listId) {
-      this.model.toggleTodoListCompleted(listId);
-  }
-
-  reorderLists(newOrder) {
-      this.model.reorderLists(newOrder);
+    this.model.addList(name);
   }
 
   getLists(query = '') {
-    console.log("X1")
-      return this.model.getLists(query);
+    return this.model.getLists(query);
   }
 
   getCurrentListId() {
     return this.model.getCurrentListId();
+  }
+
+  updateListName(listId, newName) {
+    this.model.updateListName(listId, newName);
+  }
+
+  deleteList(listId) {
+    this.model.deleteList(listId);
+  }
+
+  changeCurrentList(listId) {
+    this.model.changeCurrentList(listId);
+  }
+
+  toggleListCompletion(listId) {
+    this.model.toggleTodoListCompleted(listId);
+  }
+
+  reorderLists(newOrder) {
+    this.model.reorderLists(newOrder);
   }
 }

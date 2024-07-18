@@ -1,8 +1,7 @@
-import TodoListPanelFactory from '../factories/TodoListPanelFactory';
-import deleteIcon from '../assets/icons/delete.svg';
-import doneIcon from '../assets/icons/done.svg';
-import editIcon from '../assets/icons/edit.svg';
-import dragIcon from '../assets/icons/drag.svg';
+import { TodoListPanelFactory } from '../../factory/TodoListPanelFactory';
+import deleteIcon from '../../assets/icons/delete.svg';
+import editIcon from '../../assets/icons/edit.svg';
+import dragIcon from '../../assets/icons/drag.svg';
 
 describe('TodoListPanelFactory', () => {
   let factory;

@@ -1,15 +1,15 @@
 import { TodoController } from '../../controller/TodoController';
-import { TodoModel } from '../../model/TodoModel';
+import { TodoAppModel } from '../../model/TodoAppModel';
 import { EventTypes } from '../../utils/eventTypes';
 
-jest.mock('../../model/TodoModel');
+jest.mock('../../model/TodoAppModel.js');
 
 describe('TodoController', () => {
   let controller;
   let modelMock;
 
   beforeEach(() => {
-    modelMock = new TodoModel();
+    modelMock = new TodoAppModel();
     controller = new TodoController(modelMock);
   });
 
