@@ -1,5 +1,6 @@
 import { TodoListPanelFactory } from '../../factory/TodoListPanelFactory';
 import deleteIcon from '../../assets/icons/delete.svg';
+import doneIcon from '../../assets/icons/done.svg';
 import editIcon from '../../assets/icons/edit.svg';
 import dragIcon from '../../assets/icons/drag.svg';
 
@@ -25,14 +26,36 @@ describe('TodoListPanelFactory', () => {
 
   // Test addCheckbox method
   describe('addCheckbox', () => {
-    it('should add a checkbox input to the list item', () => {
+    it('should add an unchecked checkbox input to the list item when completed is false', () => {
       const li = document.createElement('li');
       factory.addCheckbox(li, false, '1');
-
+  
       const checkbox = li.querySelector('input[type="checkbox"]');
       expect(checkbox).not.toBeNull();
       expect(checkbox.checked).toBe(false);
       expect(checkbox.id).toBe(`list-checkbox-1`);
+      expect(checkbox.getAttribute('aria-label')).toBe('Mark list as complete');
+    });
+  
+    it('should add a checked checkbox input to the list item when completed is true', () => {
+      const li = document.createElement('li');
+      factory.addCheckbox(li, true, '1');
+  
+      const checkbox = li.querySelector('input[type="checkbox"]');
+      expect(checkbox).not.toBeNull();
+      expect(checkbox.checked).toBe(true);
+      expect(checkbox.id).toBe(`list-checkbox-1`);
+      expect(checkbox.getAttribute('aria-label')).toBe('Mark list as incomplete');
+    });
+  
+    it('should append a custom checkbox label with the done icon', () => {
+      const li = document.createElement('li');
+      factory.addCheckbox(li, false, '1');
+  
+      const label = li.querySelector('label.custom-checkbox');
+      expect(label).not.toBeNull();
+      expect(label.htmlFor).toBe('list-checkbox-1');
+      expect(label.innerHTML).toContain(doneIcon);
     });
   });
 

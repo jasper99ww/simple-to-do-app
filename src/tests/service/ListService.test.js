@@ -5,6 +5,8 @@ import { ModelValidator } from '../../service/ModelValidator.js';
 jest.mock('../../service/StorageService.js');
 jest.mock('../../service/ModelValidator.js');
 
+jest.spyOn(crypto, 'randomUUID').mockReturnValue('mocked-uuid');
+
 describe('ListService', () => {
   
   let listService;
@@ -369,9 +371,10 @@ describe('ListService', () => {
 
   // Test generateId
   describe('generateId', () => {
-    it('should generate a new UUID', () => {
-      expect(typeof listService.generateId()).toBe('string');
+    it('should generate a UUID', () => {
+      const uuid = listService.generateId();
+      expect(uuid).toBe('mocked-uuid');
+      expect(crypto.randomUUID).toHaveBeenCalled();
     });
   });
-
 });
