@@ -5,8 +5,6 @@ import { ModelValidator } from '../../service/ModelValidator.js';
 jest.mock('../../service/StorageService.js');
 jest.mock('../../service/ModelValidator.js');
 
-jest.spyOn(crypto, 'randomUUID').mockReturnValue('mocked-uuid');
-
 describe('ListService', () => {
   
   let listService;
@@ -16,7 +14,7 @@ describe('ListService', () => {
     jest.clearAllMocks();
     storageServiceMock = new StorageService();
     listService = new ListService(storageServiceMock);
-    jest.spyOn(listService, 'generateId').mockReturnValue('fake-uuid');
+
   });
 
   // Test validateAndExecute method
@@ -65,12 +63,12 @@ describe('ListService', () => {
 
       expect(ModelValidator.validateListName).toHaveBeenCalledWith(expect.anything(), listName);
       expect(storageServiceMock.addList).toHaveBeenCalledWith({
-        id: 'fake-uuid',
+        id: 'mocked-uuid',
         name: listName,
         todos: [],
         completed: false
       });
-      expect(result).toEqual({ success: true, listId: 'fake-uuid' });
+      expect(result).toEqual({ success: true, listId: 'mocked-uuid' });
     });
 
     it('should not add a list if the name is not valid', () => {
@@ -372,9 +370,9 @@ describe('ListService', () => {
   // Test generateId
   describe('generateId', () => {
     it('should generate a UUID', () => {
-      const uuid = listService.generateId();
-      expect(uuid).toBe('mocked-uuid');
-      expect(crypto.randomUUID).toHaveBeenCalled();
+      const id = listService.generateId();
+      expect(id).toBe('mocked-uuid');
+      expect(global.crypto.randomUUID).toHaveBeenCalled();
     });
   });
 });
