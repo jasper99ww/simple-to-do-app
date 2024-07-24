@@ -38,41 +38,33 @@ export class TodoView {
       this.todoList.addEventListener('change', e => this.handleTodoCompletionToggle(e));
   }
 
+    // Setup sortable feature for todo items
+    setupSortable() {
+      this.sortableHandler = new SortableHandler(
+        this.todoList,
+        '.drag-btn',
+        () => this.updateItemOrder()
+      );
+    }
+
   update(event) {
     switch (event.eventType) {
       case EventTypes.UPDATE_TODO:
         this.render();
         break;
       case EventTypes.LISTS_EMPTY:
-        console.log("LIST EMPTY signal in todoview")
         this.displayNoLists(); 
         break;
       case EventTypes.LISTS_EXIST:
-        console.log("LIST EXIST signal in todoview")
-          this.displayListsExist();
-          break;
+        this.displayListsExist();
+        break;
       case EventTypes.LIST_CHANGED:
-          this.updateCurrentListName();
-          break;
+        this.updateCurrentListName();
+        break;
       case EventTypes.ERROR_TODO:
-         this.displayError(event.message);
-         break;
+        this.displayError(event.message);
+        break;
     }
-  }
-
-  // Setup sortable feature for todo items
-  setupSortable() {
-    this.sortableHandler = new SortableHandler(
-      this.todoList,
-      '.drag-btn',
-      () => this.updateItemOrder()
-    );
-  }
-
-  // Update the model order after drag-and-drop operation
-  updateItemOrder() {
-    const newOrder = Array.from(this.todoList.children).map(item => item.dataset.index);
-    this.controller.reorderItems(newOrder);
   }
 
   // Handle creating a new todo item
@@ -129,6 +121,12 @@ export class TodoView {
       const index = parseInt(todoItem.dataset.index, 10);
       this.controller.toggleTodoItemCompleted(index);
     }
+  }
+
+  // Update the model order after drag-and-drop operation
+  updateItemOrder() {
+    const newOrder = Array.from(this.todoList.children).map(item => item.dataset.index);
+    this.controller.reorderItems(newOrder);
   }
 
   // Render the todo list
