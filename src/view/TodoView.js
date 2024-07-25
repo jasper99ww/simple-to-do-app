@@ -26,9 +26,9 @@ export class TodoView {
   cacheDomElements() {
     this.todoInputForm = document.getElementById("todo-input-form");
     this.todoList = document.getElementById("todo-list");
+    this.currentListNameDisplay = document.getElementById("current-list-name");
     this.content = document.querySelector(".todo-container");
     this.emptyPrompt = document.querySelector(".prompt-container");
-    this.currentListNameDisplay = document.getElementById("current-list-name");
   }
 
   // Setup event listeners for form submission and todo list interactions
