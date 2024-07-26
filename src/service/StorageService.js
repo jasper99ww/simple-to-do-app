@@ -15,7 +15,7 @@ export class StorageService {
     if (data) {
       const parsedData = JSON.parse(data);
       parsedData.forEach(([key, value]) => {
-      this.lists.set(key, value);
+        this.lists.set(key, value);
       });
     }
   }
@@ -51,7 +51,7 @@ export class StorageService {
   }
 
   getList(listId) {
-    return {...this.lists.get(listId)}
+    return { ...this.lists.get(listId) }
   }
 
   getListNames() {
@@ -67,7 +67,7 @@ export class StorageService {
 
   updateList(listId, list) {
     const updatedLists = new Map(this.lists);
-    updatedLists.set(listId, {...list});
+    updatedLists.set(listId, { ...list });
     this.lists = updatedLists;
     this.saveLists();
   }

@@ -15,6 +15,10 @@ describe('TodoService', () => {
     todoService = new TodoService(storageServiceMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test validateAndExecute method
   describe('validateAndExecute', () => {
     it('should execute the operation if validation is successful', () => {

@@ -11,6 +11,10 @@ describe('ObserverManager', () => {
         };
     });
 
+    afterEach(() => {
+        jest.clearAllMocks();
+      });
+
     // Test addObserver method
     describe('addObserver', () => {
         it('should add an observer with specified event types', () => {

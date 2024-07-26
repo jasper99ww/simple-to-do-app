@@ -1,4 +1,4 @@
-import { EventTypes } from '../utils/eventTypes.js'; 
+import { EventTypes } from '../utils/eventTypes.js';
 import { TodoListPanelFactory } from '../factory/TodoListPanelFactory.js';
 import { SidebarHandler } from '../utils/SidebarHandler.js';
 import { SearchHandler } from '../utils/SearchHandler.js';
@@ -39,35 +39,27 @@ export class TodoListPanel {
     this.listContainer.addEventListener('change', e => this.handleListChange(e));
   }
 
-  update(event) {
-    switch (event.eventType) {
-        case EventTypes.UPDATE_LIST:
-          console.log("UPDATE LITS")
-          this.render();
-          break;
-        case EventTypes.LIST_CHANGED:
-          this.setActiveList();
-          break;
-        case EventTypes.ERROR_LIST:
-          this.displayError(event.message);
-          break;
-    }
-}
-
-
   // Setup sortable feature for list items
   setupSortable() {
     this.sortableHandler = new SortableHandler(
       this.listContainer,
       '.drag-btn',
-      this.updateModelOrder.bind(this)
+      () => this.updateModelOrder()
     );
   }
 
-  // Update the model order after drag-and-drop operation
-  updateModelOrder() {
-    const newListOrder = Array.from(this.listContainer.children).map(item => item.dataset.listId);
-    this.controller.reorderLists(newListOrder);
+  update(event) {
+    switch (event.eventType) {
+      case EventTypes.UPDATE_LIST:
+        this.render();
+        break;
+      case EventTypes.LIST_CHANGED:
+        this.setActiveList();
+        break;
+      case EventTypes.ERROR_LIST:
+        this.displayError(event.message);
+        break;
+    }
   }
 
   // Handle creating a list
@@ -92,7 +84,7 @@ export class TodoListPanel {
     } else if (listItemLabel) {
       this.selectList(listItemLabel);
     }
-}
+  }
 
   // Handle click on the edit button
   editList(button) {
@@ -112,7 +104,7 @@ export class TodoListPanel {
     };
   }
 
-   // Handle click on the delete button
+  // Handle click on the delete button
   deleteList(button) {
     const listItem = button.closest("li");
     const listId = listItem.dataset.listId;
@@ -123,9 +115,8 @@ export class TodoListPanel {
   selectList(listItemLabel) {
     const listItem = listItemLabel.closest("li");
     const listId = listItem.dataset.listId;
-    console.log("list id is " + listId)
     this.controller.changeCurrentList(listId);
-}
+  }
 
   // Handle change events for list items
   handleListChange(e) {
@@ -136,32 +127,39 @@ export class TodoListPanel {
     }
   }
 
+  // Update the model order after drag-and-drop operation
+  updateModelOrder() {
+    const newListOrder = Array.from(this.listContainer.children).map(item => item.dataset.listId);
+    this.controller.reorderLists(newListOrder);
+  }
+
+  // Set the active list item
+  setActiveList() {
+    const currentListId = this.controller.getCurrentListId();
+    const currentItem = this.listContainer.querySelector(`[data-list-id="${currentListId}"]`);
+
+    if (this.activeListItem && this.activeListItem !== currentItem) {
+      this.activeListItem.classList.remove('active');
+    }
+
+    if (currentItem) {
+      currentItem.classList.add('active');
+      this.activeListItem = currentItem;
+    }
+  }
+
   // Render the list panel filtered by search query
   render(query = this.currentQuery) {
     this.currentQuery = query;
     this.listContainer.innerHTML = '';
     const lists = this.controller.getLists(query);
-    lists.forEach( (list) => {
-        const listItem = this.factory.createTodoListPanel(list, list.id);
-        if (list.id === this.controller.getCurrentListId()) {
-          listItem.classList.add('active');
-        }
-        this.listContainer.appendChild(listItem);
+    lists.forEach((list) => {
+      const listItem = this.factory.createTodoListPanel(list, list.id);
+      if (list.id === this.controller.getCurrentListId()) {
+        listItem.classList.add('active');
+      }
+      this.listContainer.appendChild(listItem);
     });
-  }
-
-  setActiveList(){
-    const currentListId = this.controller.getCurrentListId();
-    const currentItem = this.listContainer.querySelector(`[data-list-id="${currentListId}"]`);
-
-    if (this.activeListItem && this.activeListItem !== currentItem) {
-        this.activeListItem.classList.remove('active');
-    }
-
-    if (currentItem) {
-        currentItem.classList.add('active');
-        this.activeListItem = currentItem; 
-    }
   }
 
   displayError(message) {

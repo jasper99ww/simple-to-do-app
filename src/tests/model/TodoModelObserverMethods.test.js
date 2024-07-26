@@ -14,6 +14,10 @@ describe('TodoAppModel - Observer Methods', () => {
     model = new TodoAppModel({}, {}, observerManagerMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test('addObserver should call observerManager.addObserver with correct arguments', () => {
     const observer = {};
     const eventTypes = [EventTypes.UPDATE_TODO, EventTypes.UPDATE_LIST];

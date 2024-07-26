@@ -4,7 +4,7 @@ import editIcon from '../assets/icons/edit.svg';
 import dragIcon from '../assets/icons/drag.svg';
 
 export class TodoItemFactory {
-  
+
   createTodoItem(todo, index) {
     const li = document.createElement('li');
     li.dataset.index = index;
@@ -39,7 +39,7 @@ export class TodoItemFactory {
     li.appendChild(label);
   }
 
-  addIconContainer(li){
+  addIconContainer(li) {
     const container = document.createElement('div');
     container.className = 'icon-container';
     this.addEditButton(container);
@@ -63,11 +63,11 @@ export class TodoItemFactory {
     button.innerHTML = deleteIcon;
     button.setAttribute('aria-label', 'Delete todo');
     button.setAttribute('data-tooltip', 'Delete this task');
-   
+
     container.appendChild(button);
   }
 
-  addDragButton(container){
+  addDragButton(container) {
     const button = document.createElement('button');
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;

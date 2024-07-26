@@ -11,6 +11,10 @@ describe('ModelValidator', () => {
     listNames = new Set();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('validateListExists', () => {
     it('should validate that a list does not exist', () => {
       const result = ModelValidator.validateListExists(lists, 'nonexistent');

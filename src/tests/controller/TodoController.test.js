@@ -13,6 +13,10 @@ describe('TodoController', () => {
     controller = new TodoController(modelMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test getListCount method
   describe('getListCount', () => {
     it('should return the number of lists', () => {

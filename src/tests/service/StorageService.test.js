@@ -33,7 +33,7 @@ describe('StorageService', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    jest.clearAllMocks();
   });
 
   // Test initialize method

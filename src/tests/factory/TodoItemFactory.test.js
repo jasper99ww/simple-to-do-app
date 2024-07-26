@@ -11,6 +11,10 @@ describe('TodoItemFactory', () => {
     factory = new TodoItemFactory();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test createTodoItem method
   describe('createTodoItem', () => {
     it('should create and return a complete todo item', () => {

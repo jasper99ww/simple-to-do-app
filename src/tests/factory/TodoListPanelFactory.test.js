@@ -11,6 +11,10 @@ describe('TodoListPanelFactory', () => {
     factory = new TodoListPanelFactory();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test createTodoListPanel method
   describe('createTodoListPanel', () => {
     it('should create a list item with checkbox, text label, and icon container', () => {

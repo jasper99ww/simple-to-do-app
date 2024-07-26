@@ -23,6 +23,10 @@ describe('TodoAppModel - Todo Methods', () => {
     model = new TodoAppModel(listServiceMock, todoServiceMock, observerManagerMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test getTodos method
   test('getTodos should retrieve todos correctly', () => {
     const todos = [{ id: 1, text: 'Test Todo', completed: false }];

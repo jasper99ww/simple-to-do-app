@@ -14,7 +14,10 @@ describe('ListService', () => {
     jest.clearAllMocks();
     storageServiceMock = new StorageService();
     listService = new ListService(storageServiceMock);
+  });
 
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   // Test validateAndExecute method

@@ -13,6 +13,10 @@ describe('TodoListPanelController', () => {
     controller = new TodoListPanelController(modelMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test addObserver method
   describe('addObserver', () => {
     it('should call model.addObserver with specific event types', () => {

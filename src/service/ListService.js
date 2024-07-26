@@ -128,7 +128,7 @@ export class ListService {
         newList.set(listId, list);
       }
     });
-    
+
     this.storageService.saveLists(newList);
     return { success: true };
   }

@@ -4,7 +4,7 @@ import editIcon from '../assets/icons/edit.svg';
 import dragIcon from '../assets/icons/drag.svg';
 
 export class TodoListPanelFactory {
-  
+
   createTodoListPanel(list, listId) {
     const li = document.createElement('li');
     li.className = 'list-item';
@@ -67,7 +67,7 @@ export class TodoListPanelFactory {
     container.appendChild(button);
   }
 
-  addDragButton(container){
+  addDragButton(container) {
     const button = document.createElement('button');
     button.className = 'drag-btn';
     button.innerHTML = dragIcon;

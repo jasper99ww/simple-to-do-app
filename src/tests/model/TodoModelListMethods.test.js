@@ -20,6 +20,10 @@ describe('TodoAppModel - List Methods', () => {
     jest.spyOn(model, 'checkListsExistence');
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   // Test addList functionality
   test('addList should notify and update UI when successful', () => {
     const newListId = '123';

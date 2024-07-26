@@ -7,9 +7,9 @@ export class TodoAppModel {
     this.todoService = todoService;
     this.observerManager = observerManager;
     this._currentListId = null;
- }
+  }
 
- /* Observer methods */
+  /* Observer methods */
 
   addObserver(observer, eventTypes) {
     this.observerManager.addObserver(observer, eventTypes);
@@ -24,17 +24,17 @@ export class TodoAppModel {
     this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
   }
 
- /* List methods */
+  /* List methods */
 
   addList(name) {
     const result = this.listService.addList(name);
     if (result.success) {
-        this.setCurrentListId(result.listId);
-        this.notifyUpdateListAndTodos();
-        //Check if lists exist to update UI for empty lists
-        this.checkListsExistence();
+      this.setCurrentListId(result.listId);
+      this.notifyUpdateListAndTodos();
+      //Check if lists exist to update UI for empty lists
+      this.checkListsExistence();
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
@@ -60,9 +60,9 @@ export class TodoAppModel {
   getCurrentList() {
     const result = this.listService.getList(this.getCurrentListId());
     if (result.success) {
-        return result.list;
+      return result.list;
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
@@ -77,7 +77,7 @@ export class TodoAppModel {
 
   updateListName(listId, newName) {
     const result = this.listService.updateListName(listId, newName);
-    if(result.success){
+    if (result.success) {
       this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
       this.notifyObservers({ eventType: EventTypes.LIST_CHANGED });
     } else {
@@ -90,22 +90,22 @@ export class TodoAppModel {
     if (result.success) {
       // Update list id if the current list is deleted
       if (result.previousListId) {
-          this.setCurrentListId(result.previousListId);
+        this.setCurrentListId(result.previousListId);
       }
       this.notifyUpdateListAndTodos();
       // Check if lists exist to potentially update UI for empty lists if the last list is deleted
       this.checkListsExistence();
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   toggleTodoListCompleted(listId) {
     const result = this.listService.toggleTodoListCompleted(listId);
     if (result.success) {
-        this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+      this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
@@ -115,27 +115,27 @@ export class TodoAppModel {
       this.setCurrentListId(newListId);
       this.notifyUpdateListAndTodos();
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   reorderLists(newOrder) {
     const result = this.listService.reorderLists(newOrder);
     if (result.success) {
-        this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
+      this.notifyObservers({ eventType: EventTypes.UPDATE_LIST });
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   checkListsExistence() {
     const { success, updateUI } = this.listService.checkListsExistence();
     if (updateUI) {
-        if (success) {
-            this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
-        } else {
-            this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
-        }
+      if (success) {
+        this.notifyObservers({ eventType: EventTypes.LISTS_EXIST });
+      } else {
+        this.notifyObservers({ eventType: EventTypes.LISTS_EMPTY });
+      }
     }
   }
 
@@ -148,16 +148,16 @@ export class TodoAppModel {
   addTodo(todo) {
     const result = this.todoService.addTodo(todo, this.getCurrentListId());
     if (result.success) {
-        this.notifyUpdateListAndTodos();
-        this.notifyObservers({ eventType: EventTypes.UPDATE_TODO, message: result.message });
+      this.notifyUpdateListAndTodos();
+      this.notifyObservers({ eventType: EventTypes.UPDATE_TODO, message: result.message });
     } else {
-        this.notifyObservers({ eventType: result.error, message: result.message });
+      this.notifyObservers({ eventType: result.error, message: result.message });
     }
   }
 
   updateTodoName(index, text) {
     const result = this.todoService.updateTodoName(index, this.getCurrentListId(), text);
-    if(result.success){
+    if (result.success) {
       this.notifyUpdateListAndTodos();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     } else {
@@ -167,7 +167,7 @@ export class TodoAppModel {
 
   deleteTodoItem(index) {
     const result = this.todoService.deleteTodoItem(index, this.getCurrentListId());
-    if(result.success){
+    if (result.success) {
       this.notifyUpdateListAndTodos();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     } else {
@@ -177,7 +177,7 @@ export class TodoAppModel {
 
   toggleTodoItemCompleted(index) {
     const result = this.todoService.toggleTodoItemCompleted(index, this.getCurrentListId());
-    if(result.success){
+    if (result.success) {
       this.notifyUpdateListAndTodos();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     } else {
@@ -187,7 +187,7 @@ export class TodoAppModel {
 
   reorderItems(newOrder) {
     const result = this.todoService.reorderItems(newOrder, this.getCurrentListId());
-    if(result.success){
+    if (result.success) {
       this.notifyUpdateListAndTodos();
       this.notifyObservers({ eventType: EventTypes.UPDATE_TODO });
     } else {

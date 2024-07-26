@@ -3,16 +3,16 @@ import { TodoController } from '../../controller/TodoController';
 import { EventTypes } from '../../utils/eventTypes';
 import { SortableHandler } from '../../utils/SortableHandler';
 import { DarkModeHandler } from '../../utils/DarkModeHandler';
-import { TodoItemFactory } from '../../factory/TodoItemFactory';
 
+// Mock necessary utilities and controller to isolate tests
 jest.mock('../../utils/DarkModeHandler');
 jest.mock('../../utils/setCursorToEnd');
 jest.mock('../../utils/toast');
-jest.mock('../../factory/TodoItemFactory');
 jest.mock('../../utils/SortableHandler');
 jest.mock('../../model/TodoAppModel');
 jest.mock('../../controller/TodoController');
 
+// Setup mock for the controller with default method implementations
 jest.mock('../../controller/TodoController', () => ({
   TodoController: jest.fn().mockImplementation(() => ({
     addObserver: jest.fn(),
@@ -27,6 +27,7 @@ jest.mock('../../controller/TodoController', () => ({
   }))
 }));
 
+// Setup the testing DOM environment before each test
 function setupDocumentBody() {
   document.body.innerHTML = `
     <div id="main-container">
@@ -50,6 +51,10 @@ describe('TodoView', () => {
     setupDocumentBody();
     controller = new TodoController();
     view = new TodoView(controller);
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   describe('Initialization', () => {
@@ -84,6 +89,7 @@ describe('TodoView', () => {
 
     // Test setupSortable method
     it('should setup sortable functionality', () => {
+      let mockSortableHandlerCallback;
       SortableHandler.mockImplementation((container, handle, callback) => {
         mockSortableHandlerCallback = callback;
       });
