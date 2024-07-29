@@ -29,22 +29,18 @@ describe('showToast', () => {
   });
 
   it('should remove the "show" class after 3 seconds', () => {
-    // Call the function to test
-    showToast('Test message', 'success');
-
-    // Use fake timers to control the timeout
     jest.useFakeTimers();
-
+    showToast('Test message', 'success');
+  
     // Check the initial state
     expect(toast.className).toBe('show success');
-
+  
     // Fast-forward until all timers have been executed
     jest.advanceTimersByTime(3000);
-
+  
     // Check if the "show" class is removed after 3 seconds
     expect(toast.className).toBe('success');
-
-    // Clean up fake timers
+  
     jest.useRealTimers();
   });
 });

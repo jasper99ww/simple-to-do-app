@@ -4,6 +4,6 @@ export function showToast(message, type) {
   toast.innerText = message;
 
   setTimeout(() => {
-    toast.className = toast.className.replace("show", "");
+    toast.className = toast.className.replace("show", "").trim();
   }, 3000);
 }
