@@ -1,4 +1,4 @@
-import { showToast } from '../../utils/toast'; // Import from the correct file path
+import { showToast } from '../../utils/toast'; 
 
 describe('showToast', () => {
   let toast;

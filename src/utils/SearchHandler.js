@@ -21,7 +21,7 @@ export class SearchHandler {
   }
 
   handleSearch(e) {
-    const query = this.searchInput.value.toLowerCase();
+    const query = this.searchInput.value.trim().toLowerCase();
     this.onSearch(query);  
     this.updateSearchIcon();
   }
@@ -34,8 +34,8 @@ export class SearchHandler {
   }
 
   updateSearchIcon() {
-    const newIcon = this.searchInput.value.length > 0 ? closeIcon : searchIcon;
-    const tooltipText = this.searchInput.value.length > 0 ? 'Clear search' : 'Click to search';
+    const newIcon = this.searchInput.value.trim().length > 0 ? closeIcon : searchIcon;
+    const tooltipText = this.searchInput.value.trim().length > 0 ? 'Clear search' : 'Click to search';
 
     if (this.currentIcon !== newIcon) {
       this.searchButton.innerHTML = newIcon;
